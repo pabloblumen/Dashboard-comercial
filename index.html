@@ -363,6 +363,7 @@ function switchTab(idx) {
   document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
   document.querySelectorAll('.tab-pane').forEach((p,i) => p.classList.toggle('active', i===idx));
   activeTab = idx;
+  if (leafletMap) setTimeout(() => { leafletMap.invalidateSize(); refreshMap(); }, 150);
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1116,9 +1117,6 @@ function renderCliEvolChart() {
 
 
 // ── MAPA LEAFLET ──────────────────────────────────────────────────────────────
-let leafletMap = null;
-let geojsonLayer = null;
-
 // Normalize province names to match GeoJSON
 const PROV_GEOJSON_NAME = {
   'Buenos Aires':        'Buenos Aires',
@@ -1160,7 +1158,7 @@ function getColor(intensity) {
   return `rgb(${r},${g},${b})`;
 }
 
-const ARG_GEOJSON = {"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {"name": "Buenos Aires"}, "geometry": {"type": "Polygon", "coordinates": [[[-63.0, -39.5], [-57.0, -38.0], [-57.5, -36.0], [-56.7, -34.3], [-58.5, -34.3], [-58.7, -34.5], [-57.5, -35.5], [-57.0, -36.5], [-57.5, -37.5], [-58.0, -38.5], [-59.0, -39.5], [-61.0, -40.5], [-63.0, -40.5], [-65.0, -40.0], [-65.0, -39.5], [-63.0, -39.5]]]}}, {"type": "Feature", "properties": {"name": "Ciudad Aut\u00f3noma de Buenos Aires"}, "geometry": {"type": "Polygon", "coordinates": [[[-58.53, -34.53], [-58.37, -34.53], [-58.37, -34.7], [-58.53, -34.7], [-58.53, -34.53]]]}}, {"type": "Feature", "properties": {"name": "C\u00f3rdoba"}, "geometry": {"type": "Polygon", "coordinates": [[[-65.0, -29.5], [-63.5, -29.0], [-62.0, -29.5], [-60.5, -30.0], [-60.0, -31.0], [-60.5, -32.0], [-62.0, -33.0], [-63.5, -33.5], [-65.0, -33.0], [-66.0, -32.0], [-66.5, -31.0], [-66.0, -30.0], [-65.0, -29.5]]]}}, {"type": "Feature", "properties": {"name": "Santa Fe"}, "geometry": {"type": "Polygon", "coordinates": [[[-60.5, -28.0], [-60.0, -28.0], [-59.0, -28.5], [-57.5, -29.0], [-57.0, -30.0], [-57.0, -31.5], [-57.5, -33.0], [-60.0, -32.0], [-60.5, -30.0], [-60.0, -29.0], [-60.5, -28.0]]]}}, {"type": "Feature", "properties": {"name": "Entre R\u00edos"}, "geometry": {"type": "Polygon", "coordinates": [[[-57.5, -29.5], [-57.0, -30.0], [-57.0, -31.5], [-57.5, -33.0], [-58.5, -33.0], [-59.0, -32.0], [-59.0, -30.5], [-58.0, -29.5], [-57.5, -29.5]]]}}, {"type": "Feature", "properties": {"name": "Mendoza"}, "geometry": {"type": "Polygon", "coordinates": [[[-69.5, -32.0], [-68.5, -32.5], [-67.5, -33.0], [-66.5, -33.5], [-66.5, -35.0], [-68.0, -36.0], [-69.5, -37.0], [-70.5, -36.5], [-70.5, -34.5], [-69.5, -33.0], [-69.5, -32.0]]]}}, {"type": "Feature", "properties": {"name": "Tucum\u00e1n"}, "geometry": {"type": "Polygon", "coordinates": [[[-65.5, -26.0], [-64.5, -26.0], [-64.0, -26.5], [-64.5, -27.5], [-65.5, -27.5], [-66.0, -27.0], [-65.5, -26.0]]]}}, {"type": "Feature", "properties": {"name": "Salta"}, "geometry": {"type": "Polygon", "coordinates": [[[-68.5, -22.0], [-66.5, -22.0], [-64.5, -22.0], [-64.0, -23.0], [-64.5, -24.0], [-65.0, -25.0], [-65.5, -26.0], [-66.0, -27.0], [-67.0, -26.5], [-67.5, -25.5], [-68.5, -24.5], [-69.0, -23.5], [-68.5, -22.0]]]}}, {"type": "Feature", "properties": {"name": "Jujuy"}, "geometry": {"type": "Polygon", "coordinates": [[[-69.5, -21.5], [-68.5, -22.0], [-66.5, -22.0], [-64.5, -22.0], [-65.0, -22.0], [-65.5, -21.5], [-66.5, -21.5], [-67.5, -21.5], [-68.5, -21.5], [-69.5, -21.5]]]}}, {"type": "Feature", "properties": {"name": "Chaco"}, "geometry": {"type": "Polygon", "coordinates": [[[-63.0, -24.0], [-60.5, -24.0], [-60.0, -25.5], [-61.0, -27.0], [-63.0, -27.5], [-64.5, -26.5], [-64.5, -25.0], [-63.5, -24.0], [-63.0, -24.0]]]}}, {"type": "Feature", "properties": {"name": "Formosa"}, "geometry": {"type": "Polygon", "coordinates": [[[-69.0, -22.0], [-64.5, -22.0], [-60.5, -22.0], [-58.5, -22.5], [-58.0, -23.0], [-60.0, -23.5], [-60.5, -24.0], [-63.0, -24.0], [-64.5, -24.0], [-65.0, -23.5], [-66.5, -22.5], [-69.0, -22.0]]]}}, {"type": "Feature", "properties": {"name": "Misiones"}, "geometry": {"type": "Polygon", "coordinates": [[[-55.5, -25.5], [-54.0, -26.5], [-53.5, -27.0], [-55.0, -28.0], [-56.0, -28.0], [-56.5, -27.0], [-55.5, -25.5]]]}}, {"type": "Feature", "properties": {"name": "Corrientes"}, "geometry": {"type": "Polygon", "coordinates": [[[-60.0, -27.5], [-57.5, -27.0], [-57.0, -28.5], [-57.5, -29.5], [-59.0, -29.0], [-60.0, -28.5], [-60.5, -28.0], [-60.0, -27.5]]]}}, {"type": "Feature", "properties": {"name": "La Rioja"}, "geometry": {"type": "Polygon", "coordinates": [[[-67.5, -27.5], [-66.5, -27.0], [-65.5, -28.0], [-65.5, -30.0], [-66.0, -30.5], [-68.0, -30.0], [-68.5, -29.0], [-67.5, -27.5]]]}}, {"type": "Feature", "properties": {"name": "Catamarca"}, "geometry": {"type": "Polygon", "coordinates": [[[-69.0, -25.5], [-67.0, -25.0], [-65.5, -26.0], [-66.0, -27.0], [-67.5, -27.5], [-68.5, -27.0], [-69.0, -26.0], [-69.0, -25.5]]]}}, {"type": "Feature", "properties": {"name": "San Juan"}, "geometry": {"type": "Polygon", "coordinates": [[[-70.5, -28.0], [-68.5, -27.5], [-67.5, -28.5], [-67.0, -30.0], [-68.0, -30.5], [-69.5, -30.5], [-70.5, -30.0], [-70.5, -28.0]]]}}, {"type": "Feature", "properties": {"name": "San Luis"}, "geometry": {"type": "Polygon", "coordinates": [[[-67.0, -32.0], [-66.0, -32.0], [-65.0, -33.0], [-65.5, -34.0], [-67.0, -34.5], [-68.5, -34.0], [-68.0, -33.0], [-67.0, -32.0]]]}}, {"type": "Feature", "properties": {"name": "La Pampa"}, "geometry": {"type": "Polygon", "coordinates": [[[-67.0, -34.5], [-65.5, -34.0], [-65.0, -35.0], [-65.0, -37.0], [-67.0, -38.0], [-68.0, -38.0], [-68.5, -37.0], [-68.5, -36.0], [-67.5, -35.0], [-67.0, -34.5]]]}}, {"type": "Feature", "properties": {"name": "Santiago del Estero"}, "geometry": {"type": "Polygon", "coordinates": [[[-64.0, -25.5], [-62.5, -25.0], [-61.0, -26.0], [-60.5, -27.5], [-61.5, -28.5], [-63.5, -29.5], [-64.5, -29.0], [-65.5, -28.0], [-65.0, -27.0], [-64.5, -26.0], [-64.0, -25.5]]]}}, {"type": "Feature", "properties": {"name": "Neuqu\u00e9n"}, "geometry": {"type": "Polygon", "coordinates": [[[-70.5, -36.0], [-70.5, -37.5], [-70.5, -39.0], [-68.5, -39.5], [-67.0, -39.5], [-68.0, -38.0], [-68.5, -37.0], [-68.5, -36.0], [-70.5, -36.0]]]}}, {"type": "Feature", "properties": {"name": "R\u00edo Negro"}, "geometry": {"type": "Polygon", "coordinates": [[[-70.5, -39.0], [-70.5, -41.0], [-68.0, -42.0], [-65.0, -41.5], [-63.0, -40.5], [-63.0, -40.0], [-65.0, -40.0], [-67.0, -39.5], [-68.5, -39.5], [-70.5, -39.0]]]}}, {"type": "Feature", "properties": {"name": "Chubut"}, "geometry": {"type": "Polygon", "coordinates": [[[-70.5, -42.0], [-70.5, -46.0], [-67.0, -46.0], [-65.0, -44.5], [-63.5, -43.0], [-65.0, -41.5], [-68.0, -42.0], [-70.5, -42.0]]]}}, {"type": "Feature", "properties": {"name": "Santa Cruz"}, "geometry": {"type": "Polygon", "coordinates": [[[-72.0, -46.5], [-72.0, -52.0], [-69.0, -52.0], [-66.5, -52.0], [-66.0, -50.0], [-65.5, -47.0], [-67.0, -46.0], [-70.5, -46.0], [-72.0, -46.5]]]}}, {"type": "Feature", "properties": {"name": "Tierra del Fuego"}, "geometry": {"type": "Polygon", "coordinates": [[[-68.5, -52.5], [-66.0, -52.5], [-65.0, -55.0], [-68.0, -55.0], [-70.0, -54.0], [-69.5, -53.0], [-68.5, -52.5]]]}}]};
+// const ARG_GEOJSON_OLD = {"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {"name": "Buenos Aires"}, "geometry": {"type": "Polygon", "coordinates": [[[-63.0, -39.5], [-57.0, -38.0], [-57.5, -36.0], [-56.7, -34.3], [-58.5, -34.3], [-58.7, -34.5], [-57.5, -35.5], [-57.0, -36.5], [-57.5, -37.5], [-58.0, -38.5], [-59.0, -39.5], [-61.0, -40.5], [-63.0, -40.5], [-65.0, -40.0], [-65.0, -39.5], [-63.0, -39.5]]]}}, {"type": "Feature", "properties": {"name": "Ciudad Aut\u00f3noma de Buenos Aires"}, "geometry": {"type": "Polygon", "coordinates": [[[-58.53, -34.53], [-58.37, -34.53], [-58.37, -34.7], [-58.53, -34.7], [-58.53, -34.53]]]}}, {"type": "Feature", "properties": {"name": "C\u00f3rdoba"}, "geometry": {"type": "Polygon", "coordinates": [[[-65.0, -29.5], [-63.5, -29.0], [-62.0, -29.5], [-60.5, -30.0], [-60.0, -31.0], [-60.5, -32.0], [-62.0, -33.0], [-63.5, -33.5], [-65.0, -33.0], [-66.0, -32.0], [-66.5, -31.0], [-66.0, -30.0], [-65.0, -29.5]]]}}, {"type": "Feature", "properties": {"name": "Santa Fe"}, "geometry": {"type": "Polygon", "coordinates": [[[-60.5, -28.0], [-60.0, -28.0], [-59.0, -28.5], [-57.5, -29.0], [-57.0, -30.0], [-57.0, -31.5], [-57.5, -33.0], [-60.0, -32.0], [-60.5, -30.0], [-60.0, -29.0], [-60.5, -28.0]]]}}, {"type": "Feature", "properties": {"name": "Entre R\u00edos"}, "geometry": {"type": "Polygon", "coordinates": [[[-57.5, -29.5], [-57.0, -30.0], [-57.0, -31.5], [-57.5, -33.0], [-58.5, -33.0], [-59.0, -32.0], [-59.0, -30.5], [-58.0, -29.5], [-57.5, -29.5]]]}}, {"type": "Feature", "properties": {"name": "Mendoza"}, "geometry": {"type": "Polygon", "coordinates": [[[-69.5, -32.0], [-68.5, -32.5], [-67.5, -33.0], [-66.5, -33.5], [-66.5, -35.0], [-68.0, -36.0], [-69.5, -37.0], [-70.5, -36.5], [-70.5, -34.5], [-69.5, -33.0], [-69.5, -32.0]]]}}, {"type": "Feature", "properties": {"name": "Tucum\u00e1n"}, "geometry": {"type": "Polygon", "coordinates": [[[-65.5, -26.0], [-64.5, -26.0], [-64.0, -26.5], [-64.5, -27.5], [-65.5, -27.5], [-66.0, -27.0], [-65.5, -26.0]]]}}, {"type": "Feature", "properties": {"name": "Salta"}, "geometry": {"type": "Polygon", "coordinates": [[[-68.5, -22.0], [-66.5, -22.0], [-64.5, -22.0], [-64.0, -23.0], [-64.5, -24.0], [-65.0, -25.0], [-65.5, -26.0], [-66.0, -27.0], [-67.0, -26.5], [-67.5, -25.5], [-68.5, -24.5], [-69.0, -23.5], [-68.5, -22.0]]]}}, {"type": "Feature", "properties": {"name": "Jujuy"}, "geometry": {"type": "Polygon", "coordinates": [[[-69.5, -21.5], [-68.5, -22.0], [-66.5, -22.0], [-64.5, -22.0], [-65.0, -22.0], [-65.5, -21.5], [-66.5, -21.5], [-67.5, -21.5], [-68.5, -21.5], [-69.5, -21.5]]]}}, {"type": "Feature", "properties": {"name": "Chaco"}, "geometry": {"type": "Polygon", "coordinates": [[[-63.0, -24.0], [-60.5, -24.0], [-60.0, -25.5], [-61.0, -27.0], [-63.0, -27.5], [-64.5, -26.5], [-64.5, -25.0], [-63.5, -24.0], [-63.0, -24.0]]]}}, {"type": "Feature", "properties": {"name": "Formosa"}, "geometry": {"type": "Polygon", "coordinates": [[[-69.0, -22.0], [-64.5, -22.0], [-60.5, -22.0], [-58.5, -22.5], [-58.0, -23.0], [-60.0, -23.5], [-60.5, -24.0], [-63.0, -24.0], [-64.5, -24.0], [-65.0, -23.5], [-66.5, -22.5], [-69.0, -22.0]]]}}, {"type": "Feature", "properties": {"name": "Misiones"}, "geometry": {"type": "Polygon", "coordinates": [[[-55.5, -25.5], [-54.0, -26.5], [-53.5, -27.0], [-55.0, -28.0], [-56.0, -28.0], [-56.5, -27.0], [-55.5, -25.5]]]}}, {"type": "Feature", "properties": {"name": "Corrientes"}, "geometry": {"type": "Polygon", "coordinates": [[[-60.0, -27.5], [-57.5, -27.0], [-57.0, -28.5], [-57.5, -29.5], [-59.0, -29.0], [-60.0, -28.5], [-60.5, -28.0], [-60.0, -27.5]]]}}, {"type": "Feature", "properties": {"name": "La Rioja"}, "geometry": {"type": "Polygon", "coordinates": [[[-67.5, -27.5], [-66.5, -27.0], [-65.5, -28.0], [-65.5, -30.0], [-66.0, -30.5], [-68.0, -30.0], [-68.5, -29.0], [-67.5, -27.5]]]}}, {"type": "Feature", "properties": {"name": "Catamarca"}, "geometry": {"type": "Polygon", "coordinates": [[[-69.0, -25.5], [-67.0, -25.0], [-65.5, -26.0], [-66.0, -27.0], [-67.5, -27.5], [-68.5, -27.0], [-69.0, -26.0], [-69.0, -25.5]]]}}, {"type": "Feature", "properties": {"name": "San Juan"}, "geometry": {"type": "Polygon", "coordinates": [[[-70.5, -28.0], [-68.5, -27.5], [-67.5, -28.5], [-67.0, -30.0], [-68.0, -30.5], [-69.5, -30.5], [-70.5, -30.0], [-70.5, -28.0]]]}}, {"type": "Feature", "properties": {"name": "San Luis"}, "geometry": {"type": "Polygon", "coordinates": [[[-67.0, -32.0], [-66.0, -32.0], [-65.0, -33.0], [-65.5, -34.0], [-67.0, -34.5], [-68.5, -34.0], [-68.0, -33.0], [-67.0, -32.0]]]}}, {"type": "Feature", "properties": {"name": "La Pampa"}, "geometry": {"type": "Polygon", "coordinates": [[[-67.0, -34.5], [-65.5, -34.0], [-65.0, -35.0], [-65.0, -37.0], [-67.0, -38.0], [-68.0, -38.0], [-68.5, -37.0], [-68.5, -36.0], [-67.5, -35.0], [-67.0, -34.5]]]}}, {"type": "Feature", "properties": {"name": "Santiago del Estero"}, "geometry": {"type": "Polygon", "coordinates": [[[-64.0, -25.5], [-62.5, -25.0], [-61.0, -26.0], [-60.5, -27.5], [-61.5, -28.5], [-63.5, -29.5], [-64.5, -29.0], [-65.5, -28.0], [-65.0, -27.0], [-64.5, -26.0], [-64.0, -25.5]]]}}, {"type": "Feature", "properties": {"name": "Neuqu\u00e9n"}, "geometry": {"type": "Polygon", "coordinates": [[[-70.5, -36.0], [-70.5, -37.5], [-70.5, -39.0], [-68.5, -39.5], [-67.0, -39.5], [-68.0, -38.0], [-68.5, -37.0], [-68.5, -36.0], [-70.5, -36.0]]]}}, {"type": "Feature", "properties": {"name": "R\u00edo Negro"}, "geometry": {"type": "Polygon", "coordinates": [[[-70.5, -39.0], [-70.5, -41.0], [-68.0, -42.0], [-65.0, -41.5], [-63.0, -40.5], [-63.0, -40.0], [-65.0, -40.0], [-67.0, -39.5], [-68.5, -39.5], [-70.5, -39.0]]]}}, {"type": "Feature", "properties": {"name": "Chubut"}, "geometry": {"type": "Polygon", "coordinates": [[[-70.5, -42.0], [-70.5, -46.0], [-67.0, -46.0], [-65.0, -44.5], [-63.5, -43.0], [-65.0, -41.5], [-68.0, -42.0], [-70.5, -42.0]]]}}, {"type": "Feature", "properties": {"name": "Santa Cruz"}, "geometry": {"type": "Polygon", "coordinates": [[[-72.0, -46.5], [-72.0, -52.0], [-69.0, -52.0], [-66.5, -52.0], [-66.0, -50.0], [-65.5, -47.0], [-67.0, -46.0], [-70.5, -46.0], [-72.0, -46.5]]]}}, {"type": "Feature", "properties": {"name": "Tierra del Fuego"}, "geometry": {"type": "Polygon", "coordinates": [[[-68.5, -52.5], [-66.0, -52.5], [-65.0, -55.0], [-68.0, -55.0], [-70.0, -54.0], [-69.5, -53.0], [-68.5, -52.5]]]}}]};
 
 function initLeafletMap() {
   if (leafletMap) { leafletMap.remove(); leafletMap = null; geojsonLayer = null; }
@@ -1425,6 +1423,22 @@ let leafletMap = null;
 let geojsonLayer = null;
 let argGeoJSON = null;
 
+const ARG_GEO = {"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {"name": "Buenos Aires"}, "geometry": {"type": "Polygon", "coordinates": [[[-63.0, -39.5], [-57.0, -38.0], [-57.5, -36.0], [-56.7, -34.3], [-58.5, -34.3], [-58.7, -34.5], [-57.5, -35.5], [-57.0, -36.5], [-57.5, -37.5], [-58.0, -38.5], [-59.0, -39.5], [-61.0, -40.5], [-63.0, -40.5], [-65.0, -40.0], [-65.0, -39.5], [-63.0, -39.5]]]}}, {"type": "Feature", "properties": {"name": "Ciudad Aut\u00f3noma de Buenos Aires"}, "geometry": {"type": "Polygon", "coordinates": [[[-58.53, -34.53], [-58.37, -34.53], [-58.37, -34.7], [-58.53, -34.7], [-58.53, -34.53]]]}}, {"type": "Feature", "properties": {"name": "C\u00f3rdoba"}, "geometry": {"type": "Polygon", "coordinates": [[[-65.0, -29.5], [-63.5, -29.0], [-62.0, -29.5], [-60.5, -30.0], [-60.0, -31.0], [-60.5, -32.0], [-62.0, -33.0], [-63.5, -33.5], [-65.0, -33.0], [-66.0, -32.0], [-66.5, -31.0], [-66.0, -30.0], [-65.0, -29.5]]]}}, {"type": "Feature", "properties": {"name": "Santa Fe"}, "geometry": {"type": "Polygon", "coordinates": [[[-60.5, -28.0], [-60.0, -28.0], [-59.0, -28.5], [-57.5, -29.0], [-57.0, -30.0], [-57.0, -31.5], [-57.5, -33.0], [-60.0, -32.0], [-60.5, -30.0], [-60.0, -29.0], [-60.5, -28.0]]]}}, {"type": "Feature", "properties": {"name": "Entre R\u00edos"}, "geometry": {"type": "Polygon", "coordinates": [[[-57.5, -29.5], [-57.0, -30.0], [-57.0, -31.5], [-57.5, -33.0], [-58.5, -33.0], [-59.0, -32.0], [-59.0, -30.5], [-58.0, -29.5], [-57.5, -29.5]]]}}, {"type": "Feature", "properties": {"name": "Mendoza"}, "geometry": {"type": "Polygon", "coordinates": [[[-69.5, -32.0], [-68.5, -32.5], [-67.5, -33.0], [-66.5, -33.5], [-66.5, -35.0], [-68.0, -36.0], [-69.5, -37.0], [-70.5, -36.5], [-70.5, -34.5], [-69.5, -33.0], [-69.5, -32.0]]]}}, {"type": "Feature", "properties": {"name": "Tucum\u00e1n"}, "geometry": {"type": "Polygon", "coordinates": [[[-65.5, -26.0], [-64.5, -26.0], [-64.0, -26.5], [-64.5, -27.5], [-65.5, -27.5], [-66.0, -27.0], [-65.5, -26.0]]]}}, {"type": "Feature", "properties": {"name": "Salta"}, "geometry": {"type": "Polygon", "coordinates": [[[-68.5, -22.0], [-66.5, -22.0], [-64.5, -22.0], [-64.0, -23.0], [-64.5, -24.0], [-65.0, -25.0], [-65.5, -26.0], [-66.0, -27.0], [-67.0, -26.5], [-67.5, -25.5], [-68.5, -24.5], [-69.0, -23.5], [-68.5, -22.0]]]}}, {"type": "Feature", "properties": {"name": "Jujuy"}, "geometry": {"type": "Polygon", "coordinates": [[[-69.5, -21.5], [-68.5, -22.0], [-66.5, -22.0], [-64.5, -22.0], [-65.0, -22.0], [-65.5, -21.5], [-66.5, -21.5], [-67.5, -21.5], [-68.5, -21.5], [-69.5, -21.5]]]}}, {"type": "Feature", "properties": {"name": "Chaco"}, "geometry": {"type": "Polygon", "coordinates": [[[-63.0, -24.0], [-60.5, -24.0], [-60.0, -25.5], [-61.0, -27.0], [-63.0, -27.5], [-64.5, -26.5], [-64.5, -25.0], [-63.5, -24.0], [-63.0, -24.0]]]}}, {"type": "Feature", "properties": {"name": "Formosa"}, "geometry": {"type": "Polygon", "coordinates": [[[-69.0, -22.0], [-64.5, -22.0], [-60.5, -22.0], [-58.5, -22.5], [-58.0, -23.0], [-60.0, -23.5], [-60.5, -24.0], [-63.0, -24.0], [-64.5, -24.0], [-65.0, -23.5], [-66.5, -22.5], [-69.0, -22.0]]]}}, {"type": "Feature", "properties": {"name": "Misiones"}, "geometry": {"type": "Polygon", "coordinates": [[[-55.5, -25.5], [-54.0, -26.5], [-53.5, -27.0], [-55.0, -28.0], [-56.0, -28.0], [-56.5, -27.0], [-55.5, -25.5]]]}}, {"type": "Feature", "properties": {"name": "Corrientes"}, "geometry": {"type": "Polygon", "coordinates": [[[-60.0, -27.5], [-57.5, -27.0], [-57.0, -28.5], [-57.5, -29.5], [-59.0, -29.0], [-60.0, -28.5], [-60.5, -28.0], [-60.0, -27.5]]]}}, {"type": "Feature", "properties": {"name": "La Rioja"}, "geometry": {"type": "Polygon", "coordinates": [[[-67.5, -27.5], [-66.5, -27.0], [-65.5, -28.0], [-65.5, -30.0], [-66.0, -30.5], [-68.0, -30.0], [-68.5, -29.0], [-67.5, -27.5]]]}}, {"type": "Feature", "properties": {"name": "Catamarca"}, "geometry": {"type": "Polygon", "coordinates": [[[-69.0, -25.5], [-67.0, -25.0], [-65.5, -26.0], [-66.0, -27.0], [-67.5, -27.5], [-68.5, -27.0], [-69.0, -26.0], [-69.0, -25.5]]]}}, {"type": "Feature", "properties": {"name": "San Juan"}, "geometry": {"type": "Polygon", "coordinates": [[[-70.5, -28.0], [-68.5, -27.5], [-67.5, -28.5], [-67.0, -30.0], [-68.0, -30.5], [-69.5, -30.5], [-70.5, -30.0], [-70.5, -28.0]]]}}, {"type": "Feature", "properties": {"name": "San Luis"}, "geometry": {"type": "Polygon", "coordinates": [[[-67.0, -32.0], [-66.0, -32.0], [-65.0, -33.0], [-65.5, -34.0], [-67.0, -34.5], [-68.5, -34.0], [-68.0, -33.0], [-67.0, -32.0]]]}}, {"type": "Feature", "properties": {"name": "La Pampa"}, "geometry": {"type": "Polygon", "coordinates": [[[-67.0, -34.5], [-65.5, -34.0], [-65.0, -35.0], [-65.0, -37.0], [-67.0, -38.0], [-68.0, -38.0], [-68.5, -37.0], [-68.5, -36.0], [-67.5, -35.0], [-67.0, -34.5]]]}}, {"type": "Feature", "properties": {"name": "Santiago del Estero"}, "geometry": {"type": "Polygon", "coordinates": [[[-64.0, -25.5], [-62.5, -25.0], [-61.0, -26.0], [-60.5, -27.5], [-61.5, -28.5], [-63.5, -29.5], [-64.5, -29.0], [-65.5, -28.0], [-65.0, -27.0], [-64.5, -26.0], [-64.0, -25.5]]]}}, {"type": "Feature", "properties": {"name": "Neuqu\u00e9n"}, "geometry": {"type": "Polygon", "coordinates": [[[-70.5, -36.0], [-70.5, -37.5], [-70.5, -39.0], [-68.5, -39.5], [-67.0, -39.5], [-68.0, -38.0], [-68.5, -37.0], [-68.5, -36.0], [-70.5, -36.0]]]}}, {"type": "Feature", "properties": {"name": "R\u00edo Negro"}, "geometry": {"type": "Polygon", "coordinates": [[[-70.5, -39.0], [-70.5, -41.0], [-68.0, -42.0], [-65.0, -41.5], [-63.0, -40.5], [-63.0, -40.0], [-65.0, -40.0], [-67.0, -39.5], [-68.5, -39.5], [-70.5, -39.0]]]}}, {"type": "Feature", "properties": {"name": "Chubut"}, "geometry": {"type": "Polygon", "coordinates": [[[-70.5, -42.0], [-70.5, -46.0], [-67.0, -46.0], [-65.0, -44.5], [-63.5, -43.0], [-65.0, -41.5], [-68.0, -42.0], [-70.5, -42.0]]]}}, {"type": "Feature", "properties": {"name": "Santa Cruz"}, "geometry": {"type": "Polygon", "coordinates": [[[-72.0, -46.5], [-72.0, -52.0], [-69.0, -52.0], [-66.5, -52.0], [-66.0, -50.0], [-65.5, -47.0], [-67.0, -46.0], [-70.5, -46.0], [-72.0, -46.5]]]}}, {"type": "Feature", "properties": {"name": "Tierra del Fuego"}, "geometry": {"type": "Polygon", "coordinates": [[[-68.5, -52.5], [-66.0, -52.5], [-65.0, -55.0], [-68.0, -55.0], [-70.0, -54.0], [-69.5, -53.0], [-68.5, -52.5]]]}}]};
+let leafletMap = null;
+let geojsonLayer = null;
+
+const PROV_NAMES = {
+  'Buenos Aires':'Buenos Aires','Ciudad Autónoma de Buenos Aires':'CABA',
+  'Córdoba':'Córdoba','Mendoza':'Mendoza','Santa Fe':'Santa Fe',
+  'Entre Ríos':'Entre Ríos','Tucumán':'Tucumán','Salta':'Salta',
+  'Jujuy':'Jujuy','Chaco':'Chaco','Formosa':'Formosa','Misiones':'Misiones',
+  'Corrientes':'Corrientes','La Rioja':'La Rioja','Catamarca':'Catamarca',
+  'San Juan':'San Juan','San Luis':'San Luis','La Pampa':'La Pampa',
+  'Santiago del Estero':'Santiago del Estero','Neuquén':'Neuquén',
+  'Río Negro':'Río Negro','Chubut':'Chubut','Santa Cruz':'Santa Cruz',
+  'Tierra del Fuego':'Tierra del Fuego',
+};
+
 function buildGMapa() {
   const el = document.getElementById('pane-3');
   const marcas   = SD.geo.marcas_list;
@@ -1432,233 +1446,172 @@ function buildGMapa() {
 
   el.innerHTML = `
   <div class="grid-2">
-    <div class="card" style="min-height:600px;padding-bottom:0">
-      <div class="card-title"><span>🗺️</span> Presencia por Provincia</div>
+    <div class="card" style="padding-bottom:0">
+      <div class="card-title"><span>🗺️</span> Presencia Geográfica</div>
       <div class="filter-bar" style="flex-wrap:wrap;gap:8px;margin-bottom:12px">
         <div style="display:flex;align-items:center;gap:6px">
           <span class="filter-label">Ver:</span>
-          <select class="filter-select" id="map-metric" onchange="renderMapa()">
+          <select class="filter-select" id="map-metric" onchange="refreshMap()">
             <option value="importe">Facturación</option>
             <option value="clientes">Clientes</option>
           </select>
         </div>
         <div style="display:flex;align-items:center;gap:6px">
           <span class="filter-label">Marca:</span>
-          <select class="filter-select" id="map-marca" onchange="onMapFilterChange('marca')">
+          <select class="filter-select" id="map-marca" onchange="onMapFilter('marca')">
             <option value="">Todas</option>
             ${marcas.map(m=>`<option>${m}</option>`).join('')}
           </select>
         </div>
         <div style="display:flex;align-items:center;gap:6px">
           <span class="filter-label">Familia:</span>
-          <select class="filter-select" id="map-familia" onchange="onMapFilterChange('familia')">
+          <select class="filter-select" id="map-familia" onchange="onMapFilter('familia')">
             <option value="">Todas</option>
             ${familias.map(f=>`<option>${f}</option>`).join('')}
           </select>
         </div>
       </div>
-      <div id="leaflet-map" style="height:500px;border-radius:8px;overflow:hidden"></div>
-      <div id="map-legend" style="padding:12px 0;display:flex;gap:16px;align-items:center;flex-wrap:wrap"></div>
+      <div id="leaflet-map" style="height:500px;width:100%;border-radius:8px"></div>
     </div>
     <div class="card">
       <div class="card-title"><span>📊</span> Ranking de Provincias</div>
       <div id="prov-ranking"></div>
-      <div id="prov-detail-wrap" style="display:none;margin-top:20px;border-top:1px solid var(--border);padding-top:16px">
+      <div id="prov-detail-card" style="display:none;margin-top:20px;border-top:1px solid var(--border);padding-top:16px">
         <div class="card-title"><span>📍</span> <span id="prov-detail-name"></span></div>
         <div id="prov-detail"></div>
       </div>
     </div>
   </div>`;
 
-  // Load GeoJSON then render
-  if (argGeoJSON) {
-    initLeaflet();
-  } else {
-    fetch('https://raw.githubusercontent.com/mgaitan/departamentos-argentina/master/provincias.geojson')
-      .then(r => r.json())
-      .then(gj => { argGeoJSON = gj; initLeaflet(); })
-      .catch(() => {
-        // fallback: try alternative source
-        fetch('https://raw.githubusercontent.com/datosgobar/geo-assets/master/geojson/argentina-provincias.geojson')
-          .then(r => r.json())
-          .then(gj => { argGeoJSON = gj; initLeaflet(); })
-          .catch(e => {
-            document.getElementById('leaflet-map').innerHTML =
-              '<div style="padding:40px;text-align:center;color:#888">⚠️ No se pudo cargar el mapa. Verificá la conexión a internet.</div>';
-          });
-      });
-  }
-}
-
-function initLeaflet() {
-  if (leafletMap) {
-    leafletMap.remove();
-    leafletMap = null;
-  }
-  leafletMap = L.map('leaflet-map', {
-    center: [-38, -65],
-    zoom: 4,
-    zoomControl: true,
-    scrollWheelZoom: false,
-    attributionControl: false,
-  });
-
-  // Light tile layer
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap &copy; CartoDB',
-    subdomains: 'abcd',
-    maxZoom: 10
-  }).addTo(leafletMap);
-
-  renderMapa();
+  setTimeout(() => startMap(), 100);
 }
 
 function getMapData() {
-  const marca   = document.getElementById('map-marca') ? document.getElementById('map-marca').value : '';
-  const familia = document.getElementById('map-familia') ? document.getElementById('map-familia').value : '';
+  const marca   = document.getElementById('map-marca')?.value || '';
+  const familia = document.getElementById('map-familia')?.value || '';
   if (marca)   return SD.geo.marcas[marca]    || {};
   if (familia) return SD.geo.familias[familia] || {};
   return SD.geo.total || {};
 }
 
-function onMapFilterChange(changed) {
-  if (changed === 'marca'   && document.getElementById('map-marca').value)
-    document.getElementById('map-familia').value = '';
-  if (changed === 'familia' && document.getElementById('map-familia').value)
-    document.getElementById('map-marca').value = '';
-  renderMapa();
+function onMapFilter(type) {
+  if (type === 'marca')   document.getElementById('map-familia').value = '';
+  if (type === 'familia') document.getElementById('map-marca').value   = '';
+  refreshMap();
 }
 
-function renderMapa() {
-  if (!leafletMap || !argGeoJSON) return;
-  const metric  = document.getElementById('map-metric').value;
+function getProvColor(val, maxVal) {
+  if (!val || val === 0) return '#E8ECF4';
+  const t = 0.15 + 0.85 * (val / maxVal);
+  const r = Math.round(61  * (1-t) + 27  * t);
+  const g = Math.round(90  * (1-t) + 42  * t);
+  const b = Math.round(153 * (1-t) + 71  * t);
+  return `rgb(${r},${g},${b})`;
+}
+
+function startMap() {
+  if (leafletMap) { leafletMap.remove(); leafletMap = null; geojsonLayer = null; }
+
+  leafletMap = L.map('leaflet-map', {
+    center: [-40, -65], zoom: 4,
+    zoomControl: true, scrollWheelZoom: false, attributionControl: false,
+  });
+
+  refreshMap();
+}
+
+function refreshMap() {
+  if (!leafletMap) return;
   const mapData = getMapData();
+  const metric  = document.getElementById('map-metric')?.value || 'importe';
+  const values  = Object.values(mapData).map(d => metric==='importe' ? d.importe : d.clientes);
+  const maxVal  = Math.max(...values, 1);
 
-  const values = Object.values(mapData).map(d => metric==='importe' ? d.importe : d.clientes);
-  const maxVal = Math.max(...values, 1);
+  if (geojsonLayer) { geojsonLayer.remove(); geojsonLayer = null; }
 
-  function getColor(val) {
-    if (!val || val <= 0) return '#E8ECF4';
-    const t = val / maxVal;
-    // Light blue → dark navy
-    const r = Math.round(189 - t * 162);
-    const g = Math.round(215 - t * 173);
-    const b = Math.round(238 - t * 167);
-    return `rgb(${r},${g},${b})`;
-  }
-
-  if (geojsonLayer) {
-    leafletMap.removeLayer(geojsonLayer);
-    geojsonLayer = null;
-  }
-
-  geojsonLayer = L.geoJSON(argGeoJSON, {
+  geojsonLayer = L.geoJSON(ARG_GEO, {
     style: feature => {
-      const geoName = feature.properties.nombre || feature.properties.NAME_1 || feature.properties.name || '';
-      const dataName = GEOJSON_TO_DATA[geoName] || geoName;
-      const d = mapData[dataName];
+      const geoName = feature.properties.name;
+      const provKey = PROV_NAMES[geoName] || geoName;
+      const d   = mapData[provKey];
       const val = d ? (metric==='importe' ? d.importe : d.clientes) : 0;
       return {
-        fillColor: getColor(val),
-        fillOpacity: 0.85,
-        color: 'white',
-        weight: 1.5,
+        fillColor:   getProvColor(val, maxVal),
+        fillOpacity: val > 0 ? 0.85 : 0.4,
+        color:       'white',
+        weight:      1.5,
       };
     },
     onEachFeature: (feature, layer) => {
-      const geoName  = feature.properties.nombre || feature.properties.NAME_1 || feature.properties.name || '';
-      const dataName = GEOJSON_TO_DATA[geoName] || geoName;
-      const d = mapData[dataName];
-      const val = d ? (metric==='importe' ? d.importe : d.clientes) : 0;
-      const label = val > 0
-        ? (metric==='importe' ? fmt(val) : val + ' clientes')
+      const geoName = feature.properties.name;
+      const provKey = PROV_NAMES[geoName] || geoName;
+      const d = mapData[provKey];
+      const valLabel = d
+        ? (metric==='importe' ? fmt(d.importe) : d.clientes + ' clientes')
         : 'Sin datos';
 
-      layer.bindTooltip(`<b>${geoName}</b><br>${label}`, {
-        permanent: false, direction: 'center', className: 'map-tooltip'
-      });
-
+      layer.bindTooltip(
+        `<div style="font-family:Arial;font-size:13px"><b>${geoName}</b><br>${valLabel}</div>`,
+        {sticky: true, opacity: 0.95}
+      );
       layer.on({
-        mouseover: e => { e.target.setStyle({ fillOpacity: 1, weight: 2.5, color: '#1B2A47' }); },
-        mouseout:  e => { geojsonLayer.resetStyle(e.target); },
-        click: () => { if (d) showProvDetail(dataName); }
+        mouseover: e => e.target.setStyle({weight:3, color:'#E8A020', fillOpacity:0.95}),
+        mouseout:  e => geojsonLayer.resetStyle(e.target),
+        click:     () => showProvDetail(provKey),
       });
     }
   }).addTo(leafletMap);
 
-  // Legend
-  const legendEl = document.getElementById('map-legend');
-  if (legendEl) {
-    const stops = [0, 0.25, 0.5, 0.75, 1];
-    legendEl.innerHTML = `
-      <span style="font-size:0.75rem;font-weight:600;color:var(--text2)">Sin datos</span>
-      <div style="display:flex;align-items:center;gap:3px">
-        ${stops.map(t => `<div style="width:28px;height:14px;border-radius:3px;background:${getColor(t*maxVal)}"></div>`).join('')}
-      </div>
-      <span style="font-size:0.75rem;font-weight:600;color:var(--text2)">
-        ${metric==='importe' ? fmt(maxVal) : maxVal + ' clientes'}
-      </span>`;
-  }
+  leafletMap.fitBounds(geojsonLayer.getBounds(), {padding:[10,10]});
+  renderProvRanking(mapData, metric);
+}
 
-  // Ranking
-  const provList = Object.entries(mapData)
-    .map(([prov,d]) => ({prov, val: metric==='importe' ? d.importe : d.clientes, data:d}))
-    .filter(p => p.val > 0)
+function renderProvRanking(mapData, metric) {
+  const list = Object.entries(mapData)
+    .map(([p,d]) => ({prov:p, val: metric==='importe'?d.importe:d.clientes, data:d}))
+    .filter(x => x.val > 0)
     .sort((a,b) => b.val - a.val);
-
-  const maxR = provList[0]?.val || 1;
-  document.getElementById('prov-ranking').innerHTML = provList.map((item,i) => {
+  const maxR = list[0]?.val || 1;
+  document.getElementById('prov-ranking').innerHTML = list.map((item,i) => {
     const label = metric==='importe' ? fmt(item.val) : `${item.val} clientes`;
     const sub   = metric==='importe' ? `${item.data.clientes} clientes` : fmt(item.data.importe);
-    const barW  = Math.round(item.val/maxR*100);
     return `<div class="ranking-item" style="cursor:pointer" onclick="showProvDetail('${item.prov}')">
       <div class="rank-pos ${i===0?'gold':i===1?'silver':i===2?'bronze':'normal'}">${i+1}</div>
       <div class="rank-name">${item.prov}<div class="rank-sub">${sub}</div></div>
-      <div class="rank-bar-wrap"><div class="rank-bar-bg"><div class="rank-bar" style="width:${barW}%;background:var(--navy2)"></div></div></div>
+      <div class="rank-bar-wrap"><div class="rank-bar-bg"><div class="rank-bar" style="width:${Math.round(item.val/maxR*100)}%;background:var(--navy2)"></div></div></div>
       <div class="rank-amount">${label}</div>
     </div>`;
   }).join('');
 }
 
 function showProvDetail(prov) {
-  const d = getMapData()[prov];
+  const mapData = getMapData();
+  const d = mapData[prov];
   if (!d) return;
-  document.getElementById('prov-detail-wrap').style.display = 'block';
+  document.getElementById('prov-detail-card').style.display = 'block';
   document.getElementById('prov-detail-name').textContent = prov;
   document.getElementById('prov-detail').innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-      <div class="kpi-card" style="border-color:var(--navy);padding:14px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div class="kpi-card" style="border-color:var(--navy);padding:12px">
         <div class="kpi-label">Facturación</div>
-        <div class="kpi-value" style="font-size:1.3rem">${fmt(d.importe)}</div>
+        <div class="kpi-value" style="font-size:1.2rem">${fmt(d.importe)}</div>
       </div>
-      <div class="kpi-card" style="border-color:var(--accent);padding:14px">
+      <div class="kpi-card" style="border-color:var(--accent);padding:12px">
         <div class="kpi-label">Clientes</div>
-        <div class="kpi-value" style="font-size:1.3rem">${d.clientes}</div>
+        <div class="kpi-value" style="font-size:1.2rem">${d.clientes}</div>
       </div>
     </div>
-    <div style="font-size:0.82rem;font-weight:700;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.3px">Top Clientes</div>
+    <div style="font-size:0.78rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Top clientes</div>
     ${d.top_clientes.map(c=>`
       <div class="alert-item info" style="margin-bottom:6px;padding:10px 14px">
         <div>
           <div class="alert-name" style="font-size:0.85rem">${c.nombre}</div>
-          <div class="alert-detail">${c.localidad?c.localidad+' · ':''}${c.segmento}</div>
+          <div class="alert-detail">${c.localidad?c.localidad+' · ':''}<span class="badge badge-blue" style="font-size:0.7rem">${c.segmento}</span></div>
         </div>
         <div class="alert-amount" style="font-size:0.85rem">${fmt(c.importe)}</div>
       </div>`).join('')}`;
-
-  // Pan map to province
-  if (leafletMap && geojsonLayer) {
-    geojsonLayer.eachLayer(layer => {
-      const geoName  = layer.feature?.properties?.nombre || layer.feature?.properties?.NAME_1 || '';
-      const dataName = GEOJSON_TO_DATA[geoName] || geoName;
-      if (dataName === prov) {
-        leafletMap.fitBounds(layer.getBounds(), {padding:[20,20]});
-        layer.setStyle({fillOpacity:1, weight:3, color:'#E8A020'});
-        setTimeout(()=>geojsonLayer.resetStyle(layer),2000);
-      }
-    });
-  }
 }
+
 
 </script>
 </body>
