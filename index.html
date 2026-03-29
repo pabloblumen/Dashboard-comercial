@@ -423,6 +423,11 @@ function initMap() {
   refreshMap();
 }
 function refreshMap() {
+  console.log('GEO features:', GEO && GEO.features ? GEO.features.length : 'INVALID');
+  if (GEO.features && GEO.features.length > 0) {
+    var f0 = GEO.features[0];
+    console.log('First feature:', f0.properties.name, 'coords sample:', JSON.stringify(f0.geometry.coordinates[0][0]));
+  }
   if (!lmap) return;
   var mapData = getMapData();
   var metric  = el('mmetric') ? el('mmetric').value : 'importe';
@@ -430,7 +435,7 @@ function refreshMap() {
   var maxVal  = Math.max.apply(null, vals.concat([1]));
 
   if (llayer) { llayer.remove(); llayer=null; }
-  llayer = L.geoJSON(GEO, {
+  try { llayer = L.geoJSON(GEO, {
     style: function(feature) {
       var pk  = PROV_MAP[feature.properties.name] || feature.properties.name;
       var d   = mapData[pk];
@@ -448,8 +453,12 @@ function refreshMap() {
         click:     function(){  showProv(pk); }
       });
     }
-  }).addTo(lmap);
-  lmap.fitBounds(llayer.getBounds(),{padding:[10,10]});
+  }).addTo(lmap); } catch(e) { console.error('GeoJSON error:',e); lmap.setView([-38,-65],4); return; }
+  try {
+    var b = llayer.getBounds();
+    if (b.isValid()) lmap.fitBounds(b,{padding:[10,10]});
+    else lmap.setView([-38,-65],4);
+  } catch(e) { lmap.setView([-38,-65],4); }
   renderProvRank();
 }
 function renderProvRank() {
