@@ -1037,51 +1037,49 @@ function buildVRanking(vend) {
     });
   }, 50);
 }
-// ── EVOLUCIÓN TOP CLIENTES ────────────────────────────────────────────────────
+// ── EVOLUCIÓN TOP CLIENTES ──────────────────────────────────────────────────
 function buildGCliEvol() {
   const el = document.getElementById('pane-2');
-  el.innerHTML = `
-  <div class="card">
-    <div class="card-title"><span>📈</span> Evolución mensual — Top clientes</div>
-    <div class="filter-bar">
-      <span class="filter-label">Mostrar:</span>
-      <select class="filter-select" id="evol-top-n" onchange="renderCliEvolChart()">
-        <option value="5">Top 5</option><option value="10" selected>Top 10</option><option value="20">Top 20</option>
-      </select>
-      <span class="filter-label">Segmento:</span>
-      <select class="filter-select" id="evol-seg" onchange="renderCliEvolChart()">
-        <option value="">Todos</option>
-        <option>Terminal</option><option>Terminal Toyota</option><option>Especial</option>
-        <option>Dealer / Concesionaria</option><option>Aftermarket</option><option>Aftermarket - Sonax</option>
-      </select>
-    </div>
-    <div class="chart-wrap" style="height:360px"><canvas id="chart-cli-evol"></canvas></div>
-  </div>
-  <div class="card">
-    <div class="card-title"><span>📋</span> Detalle</div>
-    <div class="table-scroll">
-    <table class="data-table">
-      <thead><tr>
-        <th>Cliente</th><th>Vendedor</th><th>Segmento</th><th>Provincia</th>
-        <th class="num">Enero</th><th class="num">Febrero</th><th class="num">Marzo</th>
-        <th class="num">Total Q1</th><th>Var Ene→Mar</th><th>Meses</th>
-      </tr></thead>
-      <tbody id="cli-evol-tbody"></tbody>
-    </table></div>
-  </div>`;
+  const segOpts = ['Terminal','Terminal Toyota','Especial','Dealer / Concesionaria','Aftermarket','Aftermarket - Sonax']
+    .map(s => `<option>${s}</option>`).join('');
+
+  el.innerHTML = '<div class="card">' +
+    '<div class="card-title"><span>📈</span> Evolución mensual — Top clientes</div>' +
+    '<div class="filter-bar">' +
+      '<span class="filter-label">Mostrar:</span>' +
+      '<select class="filter-select" id="evol-top-n" onchange="renderCliEvolChart()">' +
+        '<option value="5">Top 5</option><option value="10" selected>Top 10</option><option value="20">Top 20</option>' +
+      '</select>' +
+      '<span class="filter-label">Segmento:</span>' +
+      '<select class="filter-select" id="evol-seg" onchange="renderCliEvolChart()">' +
+        '<option value="">Todos</option>' + segOpts +
+      '</select>' +
+    '</div>' +
+    '<div class="chart-wrap" style="height:360px"><canvas id="chart-cli-evol"></canvas></div>' +
+    '</div>' +
+    '<div class="card">' +
+    '<div class="card-title"><span>📋</span> Detalle</div>' +
+    '<div class="table-scroll"><table class="data-table">' +
+    '<thead><tr>' +
+      '<th>Cliente</th><th>Vendedor</th><th>Segmento</th><th>Provincia</th>' +
+      '<th class="num">Enero</th><th class="num">Febrero</th><th class="num">Marzo</th>' +
+      '<th class="num">Total Q1</th><th>Var Ene→Mar</th><th>Meses</th>' +
+    '</tr></thead>' +
+    '<tbody id="cli-evol-tbody"></tbody>' +
+    '</table></div></div>';
+
   renderCliEvolChart();
 }
 
 function renderCliEvolChart() {
   const topN = parseInt(document.getElementById('evol-top-n').value);
   const seg  = document.getElementById('evol-seg').value;
-  const evol = SD.cli_evol;
   const COLORS = ['#2E86AB','#E8A020','#1E8449','#C0392B','#7B2D8B','#117A65',
                   '#D35400','#8E44AD','#1A5276','#784212','#2C3E50','#CB4335',
                   '#1ABC9C','#2980B9','#E67E22','#566573','#B7950B','#27AE60'];
-  let clis = Object.entries(evol)
-    .filter(([c,d]) => !seg || d.segmento===seg)
-    .sort((a,b) => b[1].total - a[1].total)
+  let clis = Object.entries(SD.cli_evol)
+    .filter(function(e) { return !seg || e[1].segmento === seg; })
+    .sort(function(a,b) { return b[1].total - a[1].total; })
     .slice(0, topN);
 
   destroyChart('cli-evol');
@@ -1089,29 +1087,166 @@ function renderCliEvolChart() {
     type: 'line',
     data: {
       labels: ['Enero','Febrero','Marzo'],
-      datasets: clis.map(([cli,d],i) => ({
-        label: cli.length>28 ? cli.substring(0,28)+'...' : cli,
-        data: ['2026-01','2026-02','2026-03'].map(m=>d.meses[m]||0),
-        borderColor: COLORS[i%COLORS.length],
-        backgroundColor:'transparent', tension:0.3, pointRadius:6, borderWidth:2,
-      }))
+      datasets: clis.map(function(e,i) {
+        return {
+          label: e[0].length>28 ? e[0].substring(0,28)+'...' : e[0],
+          data: ['2026-01','2026-02','2026-03'].map(function(m){ return e[1].meses[m]||0; }),
+          borderColor: COLORS[i%COLORS.length],
+          backgroundColor:'transparent', tension:0.3, pointRadius:6, borderWidth:2,
+        };
+      })
     },
-    options:{ responsive:true, maintainAspectRatio:false,
+    options:{
+      responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{ position:'bottom', labels:{ boxWidth:12, font:{size:11} } } },
-      scales:{ y:{ ticks:{ callback:v=>fmt(v) } } } }
+      scales:{ y:{ ticks:{ callback:function(v){ return fmt(v); } } } }
+    }
   });
 
-  document.getElementById('cli-evol-tbody').innerHTML = clis.map(([cli,d]) => {
-    const ene=d.meses['2026-01']||0, feb=d.meses['2026-02']||0, mar=d.meses['2026-03']||0;
-    const stars = d.meses_activo===3?'🟢 3/3':d.meses_activo===2?'🟡 2/3':'🔴 1/3';
-    return `<tr>
-      <td><b>${cli}</b></td><td>${d.vendedor}</td>
-      <td><span class="badge badge-blue">${d.segmento}</span></td>
-      <td>${d.provincia||'—'}</td>
-      <td class="num">${fmt(ene)}</td><td class="num">${fmt(feb)}</td><td class="num">${fmt(mar)}</td>
-      <td class="num"><b>${fmt(d.total)}</b></td>
-      <td>${varBadge(mar,ene)}</td><td>${stars}</td>
-    </tr>`;
+  document.getElementById('cli-evol-tbody').innerHTML = clis.map(function(e) {
+    var cli=e[0], d=e[1];
+    var ene=d.meses['2026-01']||0, feb=d.meses['2026-02']||0, mar=d.meses['2026-03']||0;
+    var stars = d.meses_activo===3?'🟢 3/3':d.meses_activo===2?'🟡 2/3':'🔴 1/3';
+    return '<tr>' +
+      '<td><b>' + cli + '</b></td><td>' + d.vendedor + '</td>' +
+      '<td><span class="badge badge-blue">' + d.segmento + '</span></td>' +
+      '<td>' + (d.provincia||'—') + '</td>' +
+      '<td class="num">' + fmt(ene) + '</td><td class="num">' + fmt(feb) + '</td><td class="num">' + fmt(mar) + '</td>' +
+      '<td class="num"><b>' + fmt(d.total) + '</b></td>' +
+      '<td>' + varBadge(mar,ene) + '</td><td>' + stars + '</td>' +
+      '</tr>';
+  }).join('');
+}
+
+// ── FRECUENCIA ──────────────────────────────────────────────────────────────
+function buildGFrecuencia() {
+  var el  = document.getElementById('pane-4');
+  var fs  = SD.freq_summary;
+  var fd  = SD.freq_data;
+  var tot = fs['3_meses'] + fs['2_meses'] + fs['1_mes'];
+  var sorted = fd.slice().sort(function(a,b){return b.total-a.total;});
+  var totalVol = sorted.reduce(function(s,c){return s+c.total;},0);
+  var cum=0;
+  var cumPcts = sorted.map(function(c){cum+=c.total;return Math.round(cum/totalVol*100);});
+  var top5  = cumPcts[4]  || 100;
+  var top10 = cumPcts[9]  || 100;
+  var top20 = cumPcts[19] || 100;
+
+  var vendOpts = ['Matias Matozza','Veronica Albarracin','Alejandro Contardo',
+    'Nahuel Pontino','Oscar Luna','Hernan Villamil']
+    .map(function(v){return '<option>'+v+'</option>';}).join('');
+  var segOpts2 = ['Terminal','Terminal Toyota','Especial','Dealer / Concesionaria','Aftermarket','Aftermarket - Sonax']
+    .map(function(s){return '<option>'+s+'</option>';}).join('');
+
+  var concHtml = [['Top 5 clientes',top5],['Top 10 clientes',top10],['Top 20 clientes',top20]].map(function(x){
+    return '<div>' +
+      '<div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px">' +
+        '<span style="font-weight:600">' + x[0] + '</span>' +
+        '<span style="font-weight:800;color:var(--navy)">' + x[1] + '% del volumen</span>' +
+      '</div>' +
+      '<div class="progress-bg"><div class="progress-bar green" style="width:'+x[1]+'%"></div></div>' +
+    '</div>';
+  }).join('');
+
+  el.innerHTML =
+    '<div class="kpi-grid">' +
+      '<div class="kpi-card" style="border-color:var(--green)">' +
+        '<div class="kpi-label">🟢 3 de 3 meses</div>' +
+        '<div class="kpi-value">' + fs['3_meses'] + '</div>' +
+        '<div class="kpi-sub">' + Math.round(fs['3_meses']/tot*100) + '% de la cartera</div>' +
+      '</div>' +
+      '<div class="kpi-card" style="border-color:var(--orange)">' +
+        '<div class="kpi-label">🟡 2 de 3 meses</div>' +
+        '<div class="kpi-value">' + fs['2_meses'] + '</div>' +
+        '<div class="kpi-sub">' + Math.round(fs['2_meses']/tot*100) + '% de la cartera</div>' +
+      '</div>' +
+      '<div class="kpi-card" style="border-color:var(--red)">' +
+        '<div class="kpi-label">🔴 1 de 3 meses</div>' +
+        '<div class="kpi-value">' + fs['1_mes'] + '</div>' +
+        '<div class="kpi-sub">' + Math.round(fs['1_mes']/tot*100) + '% de la cartera</div>' +
+      '</div>' +
+      '<div class="kpi-card" style="border-color:var(--navy)">' +
+        '<div class="kpi-label">Total cartera activa</div>' +
+        '<div class="kpi-value">' + tot + '</div>' +
+        '<div class="kpi-sub">con al menos 1 compra Q1</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="grid-2">' +
+      '<div class="card">' +
+        '<div class="card-title"><span>📊</span> Distribución de frecuencia</div>' +
+        '<div class="chart-wrap-sm"><canvas id="chart-freq-bar"></canvas></div>' +
+      '</div>' +
+      '<div class="card">' +
+        '<div class="card-title"><span>💰</span> Concentración de cartera</div>' +
+        '<div style="display:flex;flex-direction:column;gap:14px;padding-top:8px">' + concHtml + '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="card-title"><span>🔄</span> Detalle por cliente</div>' +
+      '<div class="filter-bar">' +
+        '<span class="filter-label">Frecuencia:</span>' +
+        '<select class="filter-select" id="freq-filter" onchange="renderFreqTable()">' +
+          '<option value="">Todos</option>' +
+          '<option value="3">🟢 3 meses</option>' +
+          '<option value="2">🟡 2 meses</option>' +
+          '<option value="1">🔴 1 mes</option>' +
+        '</select>' +
+        '<span class="filter-label">Vendedor:</span>' +
+        '<select class="filter-select" id="freq-vend" onchange="renderFreqTable()">' +
+          '<option value="">Todos</option>' + vendOpts +
+        '</select>' +
+        '<span class="filter-label">Segmento:</span>' +
+        '<select class="filter-select" id="freq-seg" onchange="renderFreqTable()">' +
+          '<option value="">Todos</option>' + segOpts2 +
+        '</select>' +
+      '</div>' +
+      '<div class="table-scroll"><table class="data-table">' +
+        '<thead><tr>' +
+          '<th>Cliente</th><th>Vendedor</th><th>Segmento</th><th>Provincia</th>' +
+          '<th class="num">Enero</th><th class="num">Febrero</th><th class="num">Marzo</th>' +
+          '<th class="num">Total Q1</th><th>Frecuencia</th>' +
+        '</tr></thead>' +
+        '<tbody id="freq-tbody"></tbody>' +
+      '</table></div>' +
+    '</div>';
+
+  setTimeout(function(){
+    destroyChart('freq-bar');
+    charts['freq-bar'] = new Chart(document.getElementById('chart-freq-bar'),{
+      type:'bar',
+      data:{
+        labels:['3 meses (sano)','2 meses (irregular)','1 mes (puntual)'],
+        datasets:[{data:[fs['3_meses'],fs['2_meses'],fs['1_mes']],
+          backgroundColor:['#1E8449','#E67E22','#C0392B']}]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{y:{title:{display:true,text:'Clientes'}}}}
+    });
+  },50);
+  renderFreqTable();
+}
+
+function renderFreqTable() {
+  var ff  = document.getElementById('freq-filter').value;
+  var fv  = document.getElementById('freq-vend').value;
+  var fs2 = document.getElementById('freq-seg').value;
+  var d = SD.freq_data;
+  if (ff)  d = d.filter(function(r){return r.meses_activo===parseInt(ff);});
+  if (fv)  d = d.filter(function(r){return r.vendedor===fv;});
+  if (fs2) d = d.filter(function(r){return r.segmento===fs2;});
+  document.getElementById('freq-tbody').innerHTML = d.map(function(r){
+    var icon = r.meses_activo===3?'🟢 3/3':r.meses_activo===2?'🟡 2/3':'🔴 1/3';
+    var bg = r.meses_activo===2?'background:#FEF9E7':r.meses_activo===1?'background:#FFF5F5':'';
+    return '<tr style="'+bg+'">' +
+      '<td><b>'+r.cliente+'</b></td><td>'+r.vendedor+'</td>' +
+      '<td><span class="badge badge-blue">'+r.segmento+'</span></td>' +
+      '<td>'+(r.provincia||'—')+'</td>' +
+      '<td class="num">'+(r.m1>0?fmt(r.m1):'—')+'</td>' +
+      '<td class="num">'+(r.m2>0?fmt(r.m2):'—')+'</td>' +
+      '<td class="num">'+(r.m3>0?fmt(r.m3):'—')+'</td>' +
+      '<td class="num"><b>'+fmt(r.total)+'</b></td>' +
+      '<td>'+icon+'</td>' +
+    '</tr>';
   }).join('');
 }
 
@@ -1253,191 +1388,6 @@ function renderProvRanking(mapData, metric) {
     </div>`;
   }).join('');
 }
-
-function buildGFrecuencia() {
-  const el  = document.getElementById('pane-4');
-  const fs  = SD.freq_summary;
-  const fd  = SD.freq_data;
-  const tot = fs['3_meses'] + fs['2_meses'] + fs['1_mes'];
-  const sorted = [...fd].sort((a,b)=>b.total-a.total);
-  const totalVol = sorted.reduce((s,c)=>s+c.total,0);
-  let cum=0;
-  const cumPcts = sorted.map(c=>{cum+=c.total;return Math.round(cum/totalVol*100);});
-  const top5  = cumPcts[4]  || 100;
-  const top10 = cumPcts[9]  || 100;
-  const top20 = cumPcts[19] || 100;
-
-  el.innerHTML = `
-  <div class="kpi-grid">
-    <div class="kpi-card" style="border-color:var(--green)">
-      <div class="kpi-label">🟢 3 de 3 meses</div>
-      <div class="kpi-value">${fs['3_meses']}</div>
-      <div class="kpi-sub">${Math.round(fs['3_meses']/tot*100)}% de la cartera</div>
-    </div>
-    <div class="kpi-card" style="border-color:var(--orange)">
-      <div class="kpi-label">🟡 2 de 3 meses</div>
-      <div class="kpi-value">${fs['2_meses']}</div>
-      <div class="kpi-sub">${Math.round(fs['2_meses']/tot*100)}% de la cartera</div>
-    </div>
-    <div class="kpi-card" style="border-color:var(--red)">
-      <div class="kpi-label">🔴 1 de 3 meses</div>
-      <div class="kpi-value">${fs['1_mes']}</div>
-      <div class="kpi-sub">${Math.round(fs['1_mes']/tot*100)}% de la cartera</div>
-    </div>
-    <div class="kpi-card" style="border-color:var(--navy)">
-      <div class="kpi-label">Total cartera activa</div>
-      <div class="kpi-value">${tot}</div>
-      <div class="kpi-sub">con al menos 1 compra Q1</div>
-    </div>
-  </div>
-
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title"><span>📊</span> Distribución de frecuencia</div>
-      <div class="chart-wrap-sm"><canvas id="chart-freq-bar"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title"><span>💰</span> Concentración de cartera</div>
-      <div style="display:flex;flex-direction:column;gap:14px;padding-top:8px">
-        ${[['Top 5 clientes',top5],['Top 10 clientes',top10],['Top 20 clientes',top20]].map(([label,pct])=>`
-          <div>
-            <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px">
-              <span style="font-weight:600">${label}</span>
-              <span style="font-weight:800;color:var(--navy)">${pct}% del volumen</span>
-            </div>
-            <div class="progress-bg"><div class="progress-bar green" style="width:${pct}%"></div></div>
-          </div>`).join('')}
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title"><span>🔄</span> Detalle por cliente</div>
-    <div class="filter-bar">
-      <span class="filter-label">Frecuencia:</span>
-      <select class="filter-select" id="freq-filter" onchange="renderFreqTable()">
-        <option value="">Todos</option>
-        <option value="3">🟢 3 meses</option>
-        <option value="2">🟡 2 meses</option>
-        <option value="1">🔴 1 mes</option>
-      </select>
-      <span class="filter-label">Vendedor:</span>
-      <select class="filter-select" id="freq-vend" onchange="renderFreqTable()">
-        <option value="">Todos</option>
-        ${['Matias Matozza','Veronica Albarracin','Alejandro Contardo','Nahuel Pontino','Oscar Luna','Hernan Villamil']
-          .map(v=>`<option>${v}</option>`).join('')}
-      </select>
-      <span class="filter-label">Segmento:</span>
-      <select class="filter-select" id="freq-seg" onchange="renderFreqTable()">
-        <option value="">Todos</option>
-        <option>Terminal</option><option>Terminal Toyota</option><option>Especial</option>
-        <option>Dealer / Concesionaria</option><option>Aftermarket</option><option>Aftermarket - Sonax</option>
-      </select>
-    </div>
-    <div class="table-scroll">
-    <table class="data-table">
-      <thead><tr>
-        <th>Cliente</th><th>Vendedor</th><th>Segmento</th><th>Provincia</th>
-        <th class="num">Enero</th><th class="num">Febrero</th><th class="num">Marzo</th>
-        <th class="num">Total Q1</th><th>Frecuencia</th>
-      </tr></thead>
-      <tbody id="freq-tbody"></tbody>
-    </table></div>
-  </div>`;
-
-  setTimeout(()=>{
-    destroyChart('freq-bar');
-    charts['freq-bar'] = new Chart(document.getElementById('chart-freq-bar'),{
-      type:'bar',
-      data:{
-        labels:['3 meses (sano)','2 meses (irregular)','1 mes (puntual)'],
-        datasets:[{data:[fs['3_meses'],fs['2_meses'],fs['1_mes']],
-          backgroundColor:['#1E8449','#E67E22','#C0392B']}]
-      },
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-        scales:{y:{title:{display:true,text:'Clientes'}}}}
-    });
-  },50);
-  renderFreqTable();
-}
-
-function renderFreqTable() {
-  const ff  = document.getElementById('freq-filter').value;
-  const fv  = document.getElementById('freq-vend').value;
-  const fs2 = document.getElementById('freq-seg').value;
-  let d = SD.freq_data;
-  if (ff)  d = d.filter(r=>r.meses_activo===parseInt(ff));
-  if (fv)  d = d.filter(r=>r.vendedor===fv);
-  if (fs2) d = d.filter(r=>r.segmento===fs2);
-  document.getElementById('freq-tbody').innerHTML = d.map(r=>{
-    const icon = r.meses_activo===3?'🟢 3/3':r.meses_activo===2?'🟡 2/3':'🔴 1/3';
-    const bg = r.meses_activo===2?'background:#FEF9E7':r.meses_activo===1?'background:#FFF5F5':'';
-    return `<tr style="${bg}">
-      <td><b>${r.cliente}</b></td><td>${r.vendedor}</td>
-      <td><span class="badge badge-blue">${r.segmento}</span></td>
-      <td>${r.provincia||'—'}</td>
-      <td class="num">${r.m1>0?fmt(r.m1):'—'}</td>
-      <td class="num">${r.m2>0?fmt(r.m2):'—'}</td>
-      <td class="num">${r.m3>0?fmt(r.m3):'—'}</td>
-      <td class="num"><b>${fmt(r.total)}</b></td>
-      <td>${icon}</td>
-    </tr>`;
-  }).join('');
-}
-
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js">// ── MAPA CON LEAFLET ──────────────────────────────────────────────────────────
-
-// Mapeo nombre provincia datos → nombre en GeoJSON
-const PROV_NAME_MAP = {
-  'CABA': 'Ciudad Autónoma de Buenos Aires',
-  'Buenos Aires': 'Buenos Aires',
-  'Córdoba': 'Córdoba',
-  'Mendoza': 'Mendoza',
-  'Santa Fe': 'Santa Fe',
-  'Entre Ríos': 'Entre Ríos',
-  'Tucumán': 'Tucumán',
-  'Salta': 'Salta',
-  'Jujuy': 'Jujuy',
-  'Chaco': 'Chaco',
-  'Formosa': 'Formosa',
-  'Misiones': 'Misiones',
-  'Corrientes': 'Corrientes',
-  'La Rioja': 'La Rioja',
-  'Catamarca': 'Catamarca',
-  'San Juan': 'San Juan',
-  'San Luis': 'San Luis',
-  'La Pampa': 'La Pampa',
-  'Santiago del Estero': 'Santiago del Estero',
-  'Neuquén': 'Neuquén',
-  'Río Negro': 'Río Negro',
-  'Chubut': 'Chubut',
-  'Santa Cruz': 'Santa Cruz',
-  'Tierra del Fuego': 'Tierra del Fuego, Antártida e Islas del Atlántico Sur',
-};
-// Reverse map: GeoJSON name → our data name
-const GEOJSON_TO_DATA = {};
-Object.entries(PROV_NAME_MAP).forEach(([k,v]) => GEOJSON_TO_DATA[v] = k);
-
-let leafletMap = null;
-let geojsonLayer = null;
-let argGeoJSON = null;
-
-const ARG_GEO = {"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {"name": "Buenos Aires"}, "geometry": {"type": "Polygon", "coordinates": [[[-63.0, -39.5], [-57.0, -38.0], [-57.5, -36.0], [-56.7, -34.3], [-58.5, -34.3], [-58.7, -34.5], [-57.5, -35.5], [-57.0, -36.5], [-57.5, -37.5], [-58.0, -38.5], [-59.0, -39.5], [-61.0, -40.5], [-63.0, -40.5], [-65.0, -40.0], [-65.0, -39.5], [-63.0, -39.5]]]}}, {"type": "Feature", "properties": {"name": "Ciudad Aut\u00f3noma de Buenos Aires"}, "geometry": {"type": "Polygon", "coordinates": [[[-58.53, -34.53], [-58.37, -34.53], [-58.37, -34.7], [-58.53, -34.7], [-58.53, -34.53]]]}}, {"type": "Feature", "properties": {"name": "C\u00f3rdoba"}, "geometry": {"type": "Polygon", "coordinates": [[[-65.0, -29.5], [-63.5, -29.0], [-62.0, -29.5], [-60.5, -30.0], [-60.0, -31.0], [-60.5, -32.0], [-62.0, -33.0], [-63.5, -33.5], [-65.0, -33.0], [-66.0, -32.0], [-66.5, -31.0], [-66.0, -30.0], [-65.0, -29.5]]]}}, {"type": "Feature", "properties": {"name": "Santa Fe"}, "geometry": {"type": "Polygon", "coordinates": [[[-60.5, -28.0], [-60.0, -28.0], [-59.0, -28.5], [-57.5, -29.0], [-57.0, -30.0], [-57.0, -31.5], [-57.5, -33.0], [-60.0, -32.0], [-60.5, -30.0], [-60.0, -29.0], [-60.5, -28.0]]]}}, {"type": "Feature", "properties": {"name": "Entre R\u00edos"}, "geometry": {"type": "Polygon", "coordinates": [[[-57.5, -29.5], [-57.0, -30.0], [-57.0, -31.5], [-57.5, -33.0], [-58.5, -33.0], [-59.0, -32.0], [-59.0, -30.5], [-58.0, -29.5], [-57.5, -29.5]]]}}, {"type": "Feature", "properties": {"name": "Mendoza"}, "geometry": {"type": "Polygon", "coordinates": [[[-69.5, -32.0], [-68.5, -32.5], [-67.5, -33.0], [-66.5, -33.5], [-66.5, -35.0], [-68.0, -36.0], [-69.5, -37.0], [-70.5, -36.5], [-70.5, -34.5], [-69.5, -33.0], [-69.5, -32.0]]]}}, {"type": "Feature", "properties": {"name": "Tucum\u00e1n"}, "geometry": {"type": "Polygon", "coordinates": [[[-65.5, -26.0], [-64.5, -26.0], [-64.0, -26.5], [-64.5, -27.5], [-65.5, -27.5], [-66.0, -27.0], [-65.5, -26.0]]]}}, {"type": "Feature", "properties": {"name": "Salta"}, "geometry": {"type": "Polygon", "coordinates": [[[-68.5, -22.0], [-66.5, -22.0], [-64.5, -22.0], [-64.0, -23.0], [-64.5, -24.0], [-65.0, -25.0], [-65.5, -26.0], [-66.0, -27.0], [-67.0, -26.5], [-67.5, -25.5], [-68.5, -24.5], [-69.0, -23.5], [-68.5, -22.0]]]}}, {"type": "Feature", "properties": {"name": "Jujuy"}, "geometry": {"type": "Polygon", "coordinates": [[[-69.5, -21.5], [-68.5, -22.0], [-66.5, -22.0], [-64.5, -22.0], [-65.0, -22.0], [-65.5, -21.5], [-66.5, -21.5], [-67.5, -21.5], [-68.5, -21.5], [-69.5, -21.5]]]}}, {"type": "Feature", "properties": {"name": "Chaco"}, "geometry": {"type": "Polygon", "coordinates": [[[-63.0, -24.0], [-60.5, -24.0], [-60.0, -25.5], [-61.0, -27.0], [-63.0, -27.5], [-64.5, -26.5], [-64.5, -25.0], [-63.5, -24.0], [-63.0, -24.0]]]}}, {"type": "Feature", "properties": {"name": "Formosa"}, "geometry": {"type": "Polygon", "coordinates": [[[-69.0, -22.0], [-64.5, -22.0], [-60.5, -22.0], [-58.5, -22.5], [-58.0, -23.0], [-60.0, -23.5], [-60.5, -24.0], [-63.0, -24.0], [-64.5, -24.0], [-65.0, -23.5], [-66.5, -22.5], [-69.0, -22.0]]]}}, {"type": "Feature", "properties": {"name": "Misiones"}, "geometry": {"type": "Polygon", "coordinates": [[[-55.5, -25.5], [-54.0, -26.5], [-53.5, -27.0], [-55.0, -28.0], [-56.0, -28.0], [-56.5, -27.0], [-55.5, -25.5]]]}}, {"type": "Feature", "properties": {"name": "Corrientes"}, "geometry": {"type": "Polygon", "coordinates": [[[-60.0, -27.5], [-57.5, -27.0], [-57.0, -28.5], [-57.5, -29.5], [-59.0, -29.0], [-60.0, -28.5], [-60.5, -28.0], [-60.0, -27.5]]]}}, {"type": "Feature", "properties": {"name": "La Rioja"}, "geometry": {"type": "Polygon", "coordinates": [[[-67.5, -27.5], [-66.5, -27.0], [-65.5, -28.0], [-65.5, -30.0], [-66.0, -30.5], [-68.0, -30.0], [-68.5, -29.0], [-67.5, -27.5]]]}}, {"type": "Feature", "properties": {"name": "Catamarca"}, "geometry": {"type": "Polygon", "coordinates": [[[-69.0, -25.5], [-67.0, -25.0], [-65.5, -26.0], [-66.0, -27.0], [-67.5, -27.5], [-68.5, -27.0], [-69.0, -26.0], [-69.0, -25.5]]]}}, {"type": "Feature", "properties": {"name": "San Juan"}, "geometry": {"type": "Polygon", "coordinates": [[[-70.5, -28.0], [-68.5, -27.5], [-67.5, -28.5], [-67.0, -30.0], [-68.0, -30.5], [-69.5, -30.5], [-70.5, -30.0], [-70.5, -28.0]]]}}, {"type": "Feature", "properties": {"name": "San Luis"}, "geometry": {"type": "Polygon", "coordinates": [[[-67.0, -32.0], [-66.0, -32.0], [-65.0, -33.0], [-65.5, -34.0], [-67.0, -34.5], [-68.5, -34.0], [-68.0, -33.0], [-67.0, -32.0]]]}}, {"type": "Feature", "properties": {"name": "La Pampa"}, "geometry": {"type": "Polygon", "coordinates": [[[-67.0, -34.5], [-65.5, -34.0], [-65.0, -35.0], [-65.0, -37.0], [-67.0, -38.0], [-68.0, -38.0], [-68.5, -37.0], [-68.5, -36.0], [-67.5, -35.0], [-67.0, -34.5]]]}}, {"type": "Feature", "properties": {"name": "Santiago del Estero"}, "geometry": {"type": "Polygon", "coordinates": [[[-64.0, -25.5], [-62.5, -25.0], [-61.0, -26.0], [-60.5, -27.5], [-61.5, -28.5], [-63.5, -29.5], [-64.5, -29.0], [-65.5, -28.0], [-65.0, -27.0], [-64.5, -26.0], [-64.0, -25.5]]]}}, {"type": "Feature", "properties": {"name": "Neuqu\u00e9n"}, "geometry": {"type": "Polygon", "coordinates": [[[-70.5, -36.0], [-70.5, -37.5], [-70.5, -39.0], [-68.5, -39.5], [-67.0, -39.5], [-68.0, -38.0], [-68.5, -37.0], [-68.5, -36.0], [-70.5, -36.0]]]}}, {"type": "Feature", "properties": {"name": "R\u00edo Negro"}, "geometry": {"type": "Polygon", "coordinates": [[[-70.5, -39.0], [-70.5, -41.0], [-68.0, -42.0], [-65.0, -41.5], [-63.0, -40.5], [-63.0, -40.0], [-65.0, -40.0], [-67.0, -39.5], [-68.5, -39.5], [-70.5, -39.0]]]}}, {"type": "Feature", "properties": {"name": "Chubut"}, "geometry": {"type": "Polygon", "coordinates": [[[-70.5, -42.0], [-70.5, -46.0], [-67.0, -46.0], [-65.0, -44.5], [-63.5, -43.0], [-65.0, -41.5], [-68.0, -42.0], [-70.5, -42.0]]]}}, {"type": "Feature", "properties": {"name": "Santa Cruz"}, "geometry": {"type": "Polygon", "coordinates": [[[-72.0, -46.5], [-72.0, -52.0], [-69.0, -52.0], [-66.5, -52.0], [-66.0, -50.0], [-65.5, -47.0], [-67.0, -46.0], [-70.5, -46.0], [-72.0, -46.5]]]}}, {"type": "Feature", "properties": {"name": "Tierra del Fuego"}, "geometry": {"type": "Polygon", "coordinates": [[[-68.5, -52.5], [-66.0, -52.5], [-65.0, -55.0], [-68.0, -55.0], [-70.0, -54.0], [-69.5, -53.0], [-68.5, -52.5]]]}}]};
-let leafletMap = null;
-let geojsonLayer = null;
-
-const PROV_NAMES = {
-  'Buenos Aires':'Buenos Aires','Ciudad Autónoma de Buenos Aires':'CABA',
-  'Córdoba':'Córdoba','Mendoza':'Mendoza','Santa Fe':'Santa Fe',
-  'Entre Ríos':'Entre Ríos','Tucumán':'Tucumán','Salta':'Salta',
-  'Jujuy':'Jujuy','Chaco':'Chaco','Formosa':'Formosa','Misiones':'Misiones',
-  'Corrientes':'Corrientes','La Rioja':'La Rioja','Catamarca':'Catamarca',
-  'San Juan':'San Juan','San Luis':'San Luis','La Pampa':'La Pampa',
-  'Santiago del Estero':'Santiago del Estero','Neuquén':'Neuquén',
-  'Río Negro':'Río Negro','Chubut':'Chubut','Santa Cruz':'Santa Cruz',
-  'Tierra del Fuego':'Tierra del Fuego',
-};
 
 function buildGMapa() {
   const el = document.getElementById('pane-3');
