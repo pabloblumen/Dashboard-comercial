@@ -281,11 +281,11 @@ function buildGResumen() {
 
   el('pane0').innerHTML =
     '<div class="kpi-grid">' +
-      kpi('TOTAL Q1 2026', fmt(tot), 'ABC + Multicap consolidado', 'var(--navy)') +
+      kpi('TOTAL '+MESES_L[MESES[0]].substring(0,3)+'-'+MESES_L[MESES[MESES.length-1]]+' 2026', fmt(tot), 'ABC + Multicap · '+MESES.length+' meses', 'var(--navy)') +
       kpi('ABC ACCESORIOS', fmt(abcL+abcP), 'Legal + Presupuesto', 'var(--abc)') +
       kpi('MULTICAPOTAS', fmt(mc), 'Q1 2026', 'var(--mc)') +
       kpi((MESES_L[MESES[MESES.length-1]]||'Ult.Mes').toUpperCase()+' 2026', fmt(mar), 'vs '+(MESES_L[MESES[MESES.length-2]]||'ant')+': '+varBadge(mar,feb), 'var(--accent)') +
-      kpi('CLIENTES EN RIESGO', SD.clientes_caidos_global.length+'', 'Sin compras en Marzo', 'var(--red)') +
+      kpi('CLIENTES EN RIESGO', SD.clientes_caidos_global.length+'', 'Sin compras en '+(MESES_L[MESES[MESES.length-1]]||'último mes'), 'var(--red)') +
     '</div>' +
     '<div class="g2">' +
       '<div class="card"><div class="ctitle">📈 Evolución por Empresa</div><div class="ch"><canvas id="c-emp"></canvas></div></div>' +
@@ -604,7 +604,7 @@ function buildVSemana(v) {
   el('pane0').innerHTML =
     '<div class="kpi-grid">'+
       kpi('Tus ventas — Marzo', fmt(mar), 'vs Febrero: '+varBadge(mar,feb), 'var(--navy)')+
-      kpi('Clientes para llamar', caidos.length+'', 'Sin compras en Marzo', 'var(--red)')+
+      kpi('Clientes para llamar', caidos.length+'', 'Sin compras en '+(MESES_L[MESES[MESES.length-1]]||'último mes'), 'var(--red)')+
       kpi('Clientes en riesgo', riesgo.length+'', 'Bajaron >40% vs su pico', 'var(--orange)')+
     '</div>'+
     '<div class="card"><div class="ctitle">📞 Lista de llamados — sin compras en Marzo</div>'+
@@ -624,30 +624,40 @@ function buildVSemana(v) {
 
 function buildVNumeros(v) {
   var vvm = SD.venta_vend_mes, det = SD.vendedor_detalle[v];
-  var e=vvm[v][MESES[0]]||0, f=vvm[v][MESES[MESES.length-2]]||0, m=vvm[v][MESES[MESES.length-1]]||0;
-  var ce=Object.keys(det.clientes_mes[MESES[0]]||{}).length;
-  var cf=Object.keys(det.clientes_mes[MESES[MESES.length-2]]||{}).length;
-  var cm=Object.keys(det.clientes_mes[MESES[MESES.length-1]]||{}).length;
-  var topMar = Object.entries(det.clientes_mes[MESES[MESES.length-1]]||{}).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
+  var ultimo = MESES[MESES.length-1];
+  var penult  = MESES[MESES.length-2];
+  var primero = MESES[0];
+  // All months data
+  var imp_meses = MESES.map(function(m){ return vvm[v][m]||0; });
+  var total = imp_meses.reduce(function(s,v){return s+v;},0);
+  var m_ult = imp_meses[MESES.length-1];
+  var m_pen = imp_meses[MESES.length-2];
+  var cm = Object.keys(det.clientes_mes[ultimo]||{}).length;
+  var cli_meses = MESES.map(function(m){ return Object.keys(det.clientes_mes[m]||{}).length; });
+  var topUlt = Object.entries(det.clientes_mes[ultimo]||{}).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
   var mq1={};
   MESES.forEach(function(mes){ Object.entries(det.marcas_mes[mes]||{}).forEach(function(e){ mq1[e[0]]=(mq1[e[0]]||0)+e[1]; }); });
   var mSorted = Object.entries(mq1).sort(function(a,b){return b[1]-a[1];});
+  var ultNombre = MESES_L[ultimo]||ultimo;
+  var penNombre = MESES_L[penult]||penult;
 
   el('pane1').innerHTML =
     '<div class="kpi-grid">'+
-      kpi('Total Q1', fmt(e+f+m), '', 'var(--navy)')+
-      kpi('Enero', fmt(e), '', 'var(--accent)')+
-      kpi('Febrero', fmt(f), varBadge(f,e), 'var(--accent)')+
-      kpi('Marzo', fmt(m), varBadge(m,f), 'var(--accent)')+
-      kpi('Clientes activos Mar', cm+'', '', 'var(--green)')+
+      kpi('Total período', fmt(total), MESES_L[primero]+' a '+ultNombre, 'var(--navy)')+
+      MESES.map(function(m,i){
+        var val = imp_meses[i];
+        var prev = i>0 ? imp_meses[i-1] : 0;
+        return kpi(MESES_L[m]||m, fmt(val), i>0?varBadge(val,prev):'', 'var(--accent)');
+      }).join('')+
+      kpi('Clientes activos '+ultNombre, cm+'', '', 'var(--green)')+
     '</div>'+
     '<div class="g2">'+
       '<div class="card"><div class="ctitle">📈 Tu evolución</div><div class="ch"><canvas id="c-my-evol"></canvas></div></div>'+
-      '<div class="card"><div class="ctitle">📦 Tus ventas por Marca Q1</div><div class="ch"><canvas id="c-my-marca"></canvas></div></div>'+
+      '<div class="card"><div class="ctitle">📦 Tus ventas por Marca</div><div class="ch"><canvas id="c-my-marca"></canvas></div></div>'+
     '</div>'+
     '<div class="g2">'+
-      '<div class="card"><div class="ctitle">🏆 Top 10 clientes — Marzo</div><div class="tscroll"><table class="tbl"><thead><tr><th>Cliente</th><th class="num">Marzo</th></tr></thead><tbody>'+
-      topMar.map(function(e){return '<tr><td>'+e[0]+'</td><td class="num">'+fmtFull(e[1])+'</td></tr>';}).join('')+
+      '<div class="card"><div class="ctitle">🏆 Top 10 clientes — '+ultNombre+'</div><div class="tscroll"><table class="tbl"><thead><tr><th>Cliente</th><th class="num">'+ultNombre+'</th></tr></thead><tbody>'+
+      topUlt.map(function(e){return '<tr><td>'+e[0]+'</td><td class="num">'+fmtFull(e[1])+'</td></tr>';}).join('')+
       '</tbody></table></div></div>'+
       '<div class="card"><div class="ctitle">👥 Clientes activos por mes</div><div class="ch-sm"><canvas id="c-my-clis"></canvas></div></div>'+
     '</div>';
@@ -655,11 +665,20 @@ function buildVNumeros(v) {
   setTimeout(function(){
     var col = VCOLORS[v]||'#888';
     dChart('c-my-evol');
-    charts['c-my-evol']=new Chart(el('c-my-evol'),{type:'bar',data:{labels:MESES.map(function(m){return (MESES_L[m]||m).substring(0,3);}),datasets:[{data:[e,f,m],backgroundColor:[col,col,col]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:fmt}}}}});
+    charts['c-my-evol']=new Chart(el('c-my-evol'),{type:'bar',data:{
+      labels:MESES.map(function(m){return (MESES_L[m]||m).substring(0,3);}),
+      datasets:[{data:imp_meses,backgroundColor:MESES.map(function(){return col;})}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:fmt}}}}});
     dChart('c-my-marca');
-    charts['c-my-marca']=new Chart(el('c-my-marca'),{type:'doughnut',data:{labels:mSorted.map(function(e){return e[0];}),datasets:[{data:mSorted.map(function(e){return e[1];}),backgroundColor:mSorted.map(function(e){return MCOLORS[e[0]]||'#aaa';})}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
+    charts['c-my-marca']=new Chart(el('c-my-marca'),{type:'doughnut',data:{
+      labels:mSorted.map(function(e){return e[0];}),
+      datasets:[{data:mSorted.map(function(e){return e[1];}),backgroundColor:mSorted.map(function(e){return MCOLORS[e[0]]||'#aaa';})}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
     dChart('c-my-clis');
-    charts['c-my-clis']=new Chart(el('c-my-clis'),{type:'bar',data:{labels:MESES.map(function(m){return (MESES_L[m]||m).substring(0,3);}),datasets:[{label:'Clientes',data:[ce,cf,cm],backgroundColor:'#3D5A99'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+    charts['c-my-clis']=new Chart(el('c-my-clis'),{type:'bar',data:{
+      labels:MESES.map(function(m){return (MESES_L[m]||m).substring(0,3);}),
+      datasets:[{label:'Clientes',data:cli_meses,backgroundColor:'#3D5A99'}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
   },50);
 }
 
