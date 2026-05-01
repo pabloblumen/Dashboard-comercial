@@ -7,122 +7,88 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="data.js"></script>
 <style>
-:root{
-  --navy:#1B2A47;--navy2:#2D4073;--navy3:#3D5A99;
-  --accent:#E8A020;--green:#1E8449;--red:#C0392B;--orange:#E67E22;
-  --abc:#2E86AB;--mc:#7B2D8B;
-  --bg:#F0F4FA;--card:#fff;--border:#DEE2EC;--text:#1A1A2E;--text2:#555577;
-  --green-light:#D5F5E3;--red-light:#FADBD8;--orange-light:#FDEBD0;--yellow-light:#FEF9E7;
-  --radius:12px;--shadow:0 2px 12px rgba(0,0,0,.08);
-}
+:root{--navy:#1B2A47;--navy2:#2D4073;--navy3:#3D5A99;--accent:#E8A020;--green:#1E8449;--red:#C0392B;--orange:#E67E22;--abc:#2E86AB;--mc:#7B2D8B;--bg:#F0F4FA;--card:#fff;--border:#DEE2EC;--text:#1A1A2E;--text2:#555577;--radius:12px;--shadow:0 2px 12px rgba(0,0,0,.08)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text)}
-/* LOGIN */
 #login{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--navy),var(--navy2))}
 .lcard{background:#fff;border-radius:20px;padding:48px 40px;width:380px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
 .llogo{font-size:2.5rem;margin-bottom:8px}
 .ltitle{font-size:1.4rem;font-weight:800;color:var(--navy);margin-bottom:4px}
 .lsub{font-size:.85rem;color:var(--text2);margin-bottom:32px}
-.llabel{font-size:.8rem;font-weight:600;color:var(--text2);text-align:left;margin-bottom:6px;display:block}
-.lsel,.linp{width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:10px;font-size:.95rem;margin-bottom:16px;outline:none;color:var(--text)}
+.llabel{font-size:.8rem;font-weight:600;color:var(--text2);text-align:left;margin-bottom:6px;display:block;margin-top:12px}
+.lsel,.linp{width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:10px;font-size:.95rem;margin-bottom:4px;outline:none;color:var(--text)}
 .lsel:focus,.linp:focus{border-color:var(--navy2)}
-.lbtn{width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer}
+.lbtn{width:100%;padding:14px;background:var(--navy);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:20px}
 .lbtn:hover{background:var(--navy2)}
-.lerr{color:var(--red);font-size:.85rem;margin-top:8px;display:none}
-/* APP */
+.lerr{color:var(--red);font-size:.85rem;margin-top:8px;min-height:20px}
 #app{display:none}
-.topbar{background:var(--navy);color:#fff;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,.2)}
-.tlogo{font-weight:800;font-size:1.1rem;letter-spacing:1px}
-.tuser{font-size:.85rem;background:rgba(255,255,255,.15);padding:6px 14px;border-radius:20px}
+.topbar{background:var(--navy);color:#fff;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:200}
+.tlogo{font-weight:800;font-size:1.05rem}
+.tuser{font-size:.85rem;background:rgba(255,255,255,.15);padding:5px 14px;border-radius:20px}
 .tbtn{background:rgba(255,255,255,.1);border:none;color:#fff;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:.85rem}
 .tbtn:hover{background:rgba(255,255,255,.2)}
-/* TABS */
-.tabs{background:#fff;border-bottom:1px solid var(--border);display:flex;padding:0 24px;gap:4px;overflow-x:auto}
-.tab{padding:16px 20px;font-size:.88rem;font-weight:600;color:var(--text2);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+.tabs{background:#fff;border-bottom:2px solid var(--border);display:flex;padding:0 20px;gap:2px;overflow-x:auto;white-space:nowrap}
+.tab{padding:14px 18px;font-size:.85rem;font-weight:600;color:var(--text2);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;flex-shrink:0}
 .tab.active{color:var(--navy);border-bottom-color:var(--accent)}
-/* CONTENT */
-.content{padding:24px;max-width:1400px;margin:0 auto}
+.content{padding:20px;max-width:1400px;margin:0 auto}
 .pane{display:none}.pane.active{display:block}
-/* CARDS */
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;margin-bottom:24px}
-.kpi{background:var(--card);border-radius:var(--radius);padding:20px 24px;box-shadow:var(--shadow);border-left:4px solid var(--accent)}
-.kpi-lbl{font-size:.75rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-.kpi-val{font-size:1.8rem;font-weight:800;color:var(--navy);line-height:1}
-.kpi-sub{font-size:.78rem;color:var(--text2);margin-top:4px}
-.card{background:var(--card);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:20px}
-.ctitle{font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:20px}
+.kpi{background:var(--card);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);border-left:4px solid var(--accent)}
+.kpi-lbl{font-size:.72rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.kpi-val{font-size:1.7rem;font-weight:800;color:var(--navy);line-height:1}
+.kpi-sub{font-size:.75rem;color:var(--text2);margin-top:4px}
+.card{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:16px}
+.ctitle{font-size:.9rem;font-weight:700;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:900px){.g2{grid-template-columns:1fr}}
-/* TABLES */
-.tbl{width:100%;border-collapse:collapse;font-size:.875rem}
-.tbl th{background:var(--navy);color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:.78rem;text-transform:uppercase}
-.tbl td{padding:10px 14px;border-bottom:1px solid var(--border)}
+.tbl{width:100%;border-collapse:collapse;font-size:.85rem}
+.tbl th{background:var(--navy);color:#fff;padding:9px 12px;text-align:left;font-weight:600;font-size:.75rem;text-transform:uppercase}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--border)}
 .tbl tr:hover td{background:var(--bg)}
 .tbl tr:last-child td{border-bottom:none}
 .num{text-align:right;font-variant-numeric:tabular-nums}
 .tscroll{overflow-x:auto}
-/* BADGES */
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:600}
-.bg{background:var(--green-light);color:var(--green)}
-.br{background:var(--red-light);color:var(--red)}
-.bo{background:var(--orange-light);color:var(--orange)}
-.bb{background:#EBF5FB;color:#1A5276}
-.by{background:var(--yellow-light);color:#7D6608}
-/* RANKING */
-.ri{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.73rem;font-weight:600}
+.bg{background:#D5F5E3;color:var(--green)}.br{background:#FADBD8;color:var(--red)}
+.bo{background:#FDEBD0;color:var(--orange)}.bb{background:#EBF5FB;color:#1A5276}.by{background:#FEF9E7;color:#7D6608}
+.ri{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
 .ri:last-child{border-bottom:none}
-.rpos{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;flex-shrink:0}
+.rpos{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.83rem;flex-shrink:0}
 .gold{background:#F9E79F;color:#7D6608}.silver{background:#E8E8E8;color:#555}
-.bronze{background:#FDEBD0;color:#784212}.rnorm{background:var(--bg);color:var(--text2)}
-.rme{background:var(--navy);color:#fff}
-.rname{flex:1;font-weight:600;font-size:.9rem}
-.rsub{font-size:.75rem;font-weight:400;color:var(--text2)}
+.bronze{background:#FDEBD0;color:#784212}.rnorm{background:var(--bg);color:var(--text2)}.rme{background:var(--navy);color:#fff}
+.rname{flex:1;font-weight:600;font-size:.88rem}.rsub{font-size:.73rem;font-weight:400;color:var(--text2)}
 .rbar{flex:2}.rbg{background:var(--bg);border-radius:4px;height:8px;overflow:hidden}
 .rbar-fill{height:8px;border-radius:4px}
-.ramt{font-weight:800;font-size:.9rem;text-align:right;min-width:90px}
-/* ALERTS */
-.ai{padding:14px 16px;border-radius:10px;border-left:4px solid;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
-.ai.danger{background:var(--red-light);border-color:var(--red)}
-.ai.warning{background:var(--orange-light);border-color:var(--orange)}
-.ai.info{background:#EBF5FB;border-color:var(--abc)}
-.ai-name{font-weight:700;font-size:.9rem}
-.ai-det{font-size:.8rem;color:var(--text2);margin-top:2px}
-.ai-amt{font-weight:800;font-size:.95rem;white-space:nowrap}
-/* MISC */
-.fbar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;align-items:center}
-.flbl{font-size:.8rem;font-weight:600;color:var(--text2)}
-.fsel{padding:8px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;background:#fff;color:var(--text);cursor:pointer}
+.ramt{font-weight:800;font-size:.88rem;text-align:right;min-width:60px}
+.ai{padding:12px 14px;border-radius:8px;border-left:4px solid;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
+.ai.danger{background:#FADBD8;border-color:var(--red)}.ai.warning{background:#FDEBD0;border-color:var(--orange)}.ai.info{background:#EBF5FB;border-color:var(--abc)}
+.ai-name{font-weight:700;font-size:.88rem}.ai-det{font-size:.78rem;color:var(--text2);margin-top:2px}.ai-amt{font-weight:800;font-size:.9rem;white-space:nowrap}
+.fbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.flbl{font-size:.78rem;font-weight:600;color:var(--text2)}
+.fsel{padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.83rem;background:#fff;cursor:pointer}
 .fsel:focus{outline:none;border-color:var(--navy2)}
-.srch{padding:8px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;width:220px}
+.srch{padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.83rem;width:200px}
 .srch:focus{outline:none;border-color:var(--navy2)}
-.ch{position:relative;height:280px}
-.ch-sm{position:relative;height:200px}
-.ch-lg{position:relative;height:360px}
-.empty{text-align:center;padding:40px;color:var(--text2)}
-.empty .ico{font-size:2.5rem;margin-bottom:8px}
-.pbar{margin-bottom:12px}
-.pbar-row{display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:4px}
-.pbg{background:var(--bg);border-radius:6px;height:12px;overflow:hidden}
-.pfill{height:12px;border-radius:6px}
-.pfill.green{background:var(--green)}.pfill.orange{background:var(--orange)}.pfill.red{background:var(--red)}
-
-.multi-sel { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
-.ms-item { display:flex; align-items:center; gap:6px; padding:6px 12px; background:var(--bg); border-radius:20px; font-size:.82rem; cursor:pointer; border:1.5px solid var(--border); }
-.ms-item:hover { border-color:var(--navy2); }
-.ms-item input { cursor:pointer; accent-color:var(--navy); }
-
-/* MAP */
-#leaflet-map{height:520px;width:100%;border-radius:8px}
-.opp-card{background:var(--bg);border-radius:10px;padding:14px;margin-bottom:10px}
-.opp-cname{font-weight:700;font-size:.9rem;margin-bottom:8px;color:var(--navy)}
-.opp-tags{display:flex;flex-wrap:wrap;gap:6px}
-.opp-tag{padding:4px 10px;border-radius:16px;font-size:.75rem;font-weight:600}
+.ch{position:relative;height:260px}.ch-sm{position:relative;height:180px}.ch-lg{position:relative;height:320px}
+.empty{text-align:center;padding:36px;color:var(--text2)}.empty .ico{font-size:2.2rem;margin-bottom:8px}
+.pbg{background:var(--bg);border-radius:6px;height:10px;overflow:hidden}
+.pfill{height:10px;border-radius:6px}.pfill.green{background:var(--green)}.pfill.orange{background:var(--orange)}.pfill.red{background:var(--red)}
+.opp-card{background:var(--bg);border-radius:8px;padding:12px;margin-bottom:8px}
+.opp-cname{font-weight:700;font-size:.87rem;margin-bottom:6px;color:var(--navy)}
+.opp-tags{display:flex;flex-wrap:wrap;gap:5px}
+.opp-tag{padding:3px 9px;border-radius:14px;font-size:.73rem;font-weight:600}
 .opp-f{background:#EBF5FB;color:#1A5276}.opp-m{background:#F5EEF8;color:#6C3483}
+#leaflet-map{height:500px;width:100%;border-radius:8px}
+.ms-item{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;background:var(--bg);border-radius:18px;font-size:.8rem;cursor:pointer;border:1.5px solid var(--border);margin:3px}
+.ms-item:hover{border-color:var(--navy2)}
+.ms-item input{cursor:pointer;accent-color:var(--navy)}
 </style>
 </head>
 <body>
 
+<!-- LOGIN -->
 <div id="login">
   <div class="lcard">
     <div class="llogo">📊</div>
@@ -131,23 +97,28 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
     <label class="llabel">¿Quién sos?</label>
     <select class="lsel" id="usr" onchange="onUsrChange()">
       <option value="">— Seleccioná tu nombre —</option>
-      <option>Matias Matozza</option><option>Veronica Albarracin</option>
-      <option>Alejandro Contardo</option><option>Nahuel Pontino</option>
-      <option>Oscar Luna</option><option>Hernan Villamil</option>
+      <option>Matias Matozza</option>
+      <option>Veronica Albarracin</option>
+      <option>Alejandro Contardo</option>
+      <option>Nahuel Pontino</option>
+      <option>Oscar Luna</option>
+      <option>Hernan Villamil</option>
       <option value="gerencia">Gerencia</option>
     </select>
     <div id="pass-wrap" style="display:none">
       <label class="llabel">Contraseña</label>
-      <input type="password" class="linp" id="upass" placeholder="Tu contraseña" onkeydown="if(event.key==='Enter')doLogin()">
+      <input type="password" class="linp" id="upass" placeholder="Tu contraseña"
+             onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <button class="lbtn" onclick="doLogin()">Ingresar →</button>
-    <div class="lerr" id="lerr">Contraseña incorrecta</div>
+    <div class="lerr" id="lerr"></div>
   </div>
 </div>
 
+<!-- APP -->
 <div id="app">
   <div class="topbar">
-    <div style="display:flex;align-items:center;gap:16px">
+    <div style="display:flex;align-items:center;gap:14px">
       <div class="tlogo">📊 Dashboard Comercial</div>
       <div class="tuser" id="tuser">—</div>
     </div>
@@ -157,1494 +128,629 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--te
   <div class="content" id="content"></div>
 </div>
 
-<script src="data.js"></script>
 <script>
-// ── DATA ─────────────────────────────────────────────────────────────────────
-// SD loaded from data.js
-const GEO = {"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {"name": "Buenos Aires"}, "geometry": {"type": "Polygon", "coordinates": [[[-58.5, -34.3], [-57.5, -36.0], [-57.0, -38.0], [-59.0, -39.5], [-62.0, -40.5], [-65.0, -40.0], [-65.0, -38.5], [-63.0, -37.5], [-63.5, -36.0], [-62.0, -34.5], [-60.5, -33.0], [-59.0, -33.5], [-57.5, -33.5], [-58.0, -34.0], [-58.5, -34.3]]]}}, {"type": "Feature", "properties": {"name": "Ciudad Autónoma de Buenos Aires"}, "geometry": {"type": "Polygon", "coordinates": [[[-58.45, -34.52], [-58.37, -34.52], [-58.37, -34.7], [-58.53, -34.7], [-58.53, -34.6], [-58.45, -34.52]]]}}, {"type": "Feature", "properties": {"name": "Córdoba"}, "geometry": {"type": "Polygon", "coordinates": [[[-65.0, -29.5], [-64.0, -29.0], [-62.5, -29.5], [-61.0, -30.0], [-60.5, -31.0], [-60.5, -32.5], [-62.0, -33.5], [-63.5, -34.0], [-65.0, -33.5], [-66.5, -32.5], [-66.5, -30.5], [-65.5, -29.5], [-65.0, -29.5]]]}}, {"type": "Feature", "properties": {"name": "Santa Fe"}, "geometry": {"type": "Polygon", "coordinates": [[[-60.5, -28.0], [-59.5, -28.0], [-57.5, -29.5], [-57.0, -31.0], [-57.5, -33.0], [-59.0, -33.5], [-60.5, -33.0], [-61.0, -31.5], [-60.5, -30.0], [-60.5, -28.0]]]}}, {"type": "Feature", "properties": {"name": "Entre Ríos"}, "geometry": {"type": "Polygon", "coordinates": [[[-57.5, -29.5], [-57.0, -30.5], [-57.0, -32.5], [-57.5, -33.0], [-59.0, -33.5], [-59.5, -32.0], [-59.0, -30.5], [-58.0, -29.5], [-57.5, -29.5]]]}}, {"type": "Feature", "properties": {"name": "Mendoza"}, "geometry": {"type": "Polygon", "coordinates": [[[-70.5, -32.5], [-69.0, -32.0], [-68.0, -33.0], [-67.0, -34.0], [-66.5, -35.5], [-68.5, -36.5], [-70.5, -37.0], [-71.0, -36.0], [-70.5, -34.0], [-70.5, -32.5]]]}}, {"type": "Feature", "properties": {"name": "Tucumán"}, "geometry": {"type": "Polygon", "coordinates": [[[-66.0, -26.0], [-65.0, -26.0], [-64.5, -26.5], [-64.5, -27.5], [-65.5, -27.5], [-66.5, -27.0], [-66.0, -26.0]]]}}, {"type": "Feature", "properties": {"name": "Salta"}, "geometry": {"type": "Polygon", "coordinates": [[[-69.0, -22.0], [-66.5, -22.0], [-64.5, -22.5], [-64.0, -23.5], [-64.5, -24.5], [-65.5, -26.0], [-66.5, -26.5], [-67.5, -25.5], [-68.5, -24.5], [-69.5, -23.5], [-69.0, -22.0]]]}}, {"type": "Feature", "properties": {"name": "Jujuy"}, "geometry": {"type": "Polygon", "coordinates": [[[-69.5, -21.5], [-68.5, -22.0], [-66.5, -22.0], [-65.5, -22.0], [-65.5, -21.5], [-66.5, -21.5], [-67.5, -21.5], [-69.5, -21.5]]]}}, {"type": "Feature", "properties": {"name": "Chaco"}, "geometry": {"type": "Polygon", "coordinates": [[[-63.5, -24.0], [-61.0, -24.0], [-59.5, -25.0], [-60.0, -26.5], [-61.5, -27.5], [-63.5, -27.5], [-64.5, -26.5], [-64.5, -25.0], [-63.5, -24.0]]]}}, {"type": "Feature", "properties": {"name": "Formosa"}, "geometry": {"type": "Polygon", "coordinates": [[[-69.5, -22.0], [-66.5, -22.0], [-61.5, -22.0], [-58.5, -22.5], [-58.0, -23.5], [-60.5, -23.5], [-61.0, -24.0], [-63.5, -24.0], [-65.0, -23.5], [-67.0, -22.5], [-69.5, -22.0]]]}}, {"type": "Feature", "properties": {"name": "Misiones"}, "geometry": {"type": "Polygon", "coordinates": [[[-56.0, -26.0], [-54.0, -26.5], [-53.5, -27.5], [-55.5, -28.5], [-57.0, -27.5], [-56.0, -26.0]]]}}, {"type": "Feature", "properties": {"name": "Corrientes"}, "geometry": {"type": "Polygon", "coordinates": [[[-61.0, -27.0], [-58.5, -27.0], [-57.5, -28.5], [-57.5, -29.5], [-58.0, -30.0], [-59.0, -30.0], [-60.0, -29.0], [-61.0, -28.0], [-61.0, -27.0]]]}}, {"type": "Feature", "properties": {"name": "La Rioja"}, "geometry": {"type": "Polygon", "coordinates": [[[-68.5, -27.5], [-66.5, -27.0], [-65.5, -28.5], [-65.5, -30.5], [-66.5, -31.0], [-68.0, -30.5], [-68.5, -29.0], [-68.5, -27.5]]]}}, {"type": "Feature", "properties": {"name": "Catamarca"}, "geometry": {"type": "Polygon", "coordinates": [[[-69.5, -25.5], [-67.0, -25.0], [-65.5, -26.0], [-66.5, -27.0], [-68.5, -27.5], [-69.0, -26.5], [-69.5, -25.5]]]}}, {"type": "Feature", "properties": {"name": "San Juan"}, "geometry": {"type": "Polygon", "coordinates": [[[-71.0, -28.5], [-68.5, -27.5], [-67.5, -29.0], [-67.0, -30.5], [-68.0, -31.0], [-69.5, -31.0], [-70.5, -30.5], [-71.0, -28.5]]]}}, {"type": "Feature", "properties": {"name": "San Luis"}, "geometry": {"type": "Polygon", "coordinates": [[[-67.5, -32.0], [-66.0, -32.0], [-65.0, -33.5], [-65.5, -35.0], [-67.0, -35.0], [-68.5, -34.5], [-68.0, -33.0], [-67.5, -32.0]]]}}, {"type": "Feature", "properties": {"name": "La Pampa"}, "geometry": {"type": "Polygon", "coordinates": [[[-68.0, -34.5], [-65.5, -34.5], [-65.0, -36.5], [-65.0, -38.5], [-67.0, -38.5], [-68.5, -38.0], [-68.5, -36.0], [-68.0, -34.5]]]}}, {"type": "Feature", "properties": {"name": "Santiago del Estero"}, "geometry": {"type": "Polygon", "coordinates": [[[-64.5, -25.5], [-62.5, -25.5], [-61.0, -26.5], [-60.5, -28.0], [-62.0, -29.0], [-63.5, -29.5], [-65.0, -29.0], [-65.5, -28.0], [-65.0, -27.0], [-64.5, -25.5]]]}}, {"type": "Feature", "properties": {"name": "Neuquén"}, "geometry": {"type": "Polygon", "coordinates": [[[-71.0, -36.5], [-70.5, -37.0], [-70.5, -39.5], [-68.5, -40.0], [-67.0, -40.0], [-68.0, -38.5], [-68.5, -37.0], [-68.5, -36.0], [-71.0, -36.5]]]}}, {"type": "Feature", "properties": {"name": "Río Negro"}, "geometry": {"type": "Polygon", "coordinates": [[[-71.0, -39.5], [-70.5, -40.5], [-67.5, -42.5], [-65.0, -42.0], [-63.0, -41.0], [-63.0, -40.5], [-65.0, -40.0], [-67.0, -40.0], [-68.5, -40.0], [-71.0, -39.5]]]}}, {"type": "Feature", "properties": {"name": "Chubut"}, "geometry": {"type": "Polygon", "coordinates": [[[-71.5, -42.5], [-71.0, -46.5], [-67.5, -46.5], [-65.0, -45.0], [-63.5, -43.5], [-65.0, -42.0], [-67.5, -42.5], [-71.5, -42.5]]]}}, {"type": "Feature", "properties": {"name": "Santa Cruz"}, "geometry": {"type": "Polygon", "coordinates": [[[-72.5, -47.0], [-72.5, -52.0], [-69.0, -52.0], [-66.5, -52.0], [-66.0, -50.0], [-65.5, -47.5], [-67.0, -46.5], [-71.0, -46.5], [-72.5, -47.0]]]}}, {"type": "Feature", "properties": {"name": "Tierra del Fuego"}, "geometry": {"type": "Polygon", "coordinates": [[[-68.5, -52.5], [-66.0, -52.5], [-65.0, -55.0], [-68.0, -55.0], [-70.0, -54.0], [-69.5, -53.0], [-68.5, -52.5]]]}}]};
-
 // ── CONSTANTS ─────────────────────────────────────────────────────────────────
-const MESES   = SD.meses || ['2026-01','2026-02','2026-03'];
-const MESES_L = {'2026-01':'Enero','2026-02':'Febrero','2026-03':'Marzo','2026-04':'Abril'};
-const GPASS   = 'abc2026';
-const VPASSES = {
-  'Matias Matozza':      'matozza',
-  'Veronica Albarracin': 'albarracin',
-  'Alejandro Contardo':  'contardo',
-  'Nahuel Pontino':      'pontino',
-  'Oscar Luna':          'luna',
-  'Hernan Villamil':     'villamil',
-};
-const VPASSES = {
-  'Matias Matozza':      'matozza',
-  'Veronica Albarracin': 'albarracin',
-  'Alejandro Contardo':  'contardo',
-  'Nahuel Pontino':      'pontino',
-  'Oscar Luna':          'luna',
-  'Hernan Villamil':     'villamil',
-};
+const GEO_ARG = HTMLEOF
+
+# Append the rest in Python to avoid heredoc issues with special chars
+with open('/home/claude/index.html','a',encoding='utf-8') as f:
+    f.write(GEO_JSON + ';\n')
+
+print("HTML part 1 written")
+PYEOF
+python3 /home/claude/build_html.pyconst MESES    = SD.meses || ['2026-01','2026-02','2026-03','2026-04'];
+const MESES_L  = {'2026-01':'Enero','2026-02':'Febrero','2026-03':'Marzo','2026-04':'Abril'};
+const GPASS    = 'abc2026';
+const VPASSES  = {'Matias Matozza':'matozza','Veronica Albarracin':'albarracin','Alejandro Contardo':'contardo','Nahuel Pontino':'pontino','Oscar Luna':'luna','Hernan Villamil':'villamil'};
 const VENDEDORES = ['Matias Matozza','Veronica Albarracin','Alejandro Contardo','Nahuel Pontino','Oscar Luna','Hernan Villamil'];
-const VCOLORS = {
-  'Matias Matozza':'#2E86AB','Veronica Albarracin':'#E8A020','Alejandro Contardo':'#1E8449',
-  'Nahuel Pontino':'#8E44AD','Oscar Luna':'#E74C3C','Hernan Villamil':'#117A65',
-};
-const MCOLORS = {
-  'McGard':'#1A5276','Multicap':'#1E8449','HELLA':'#E74C3C','WINBO':'#2E86AB',
-  'SONAX':'#D4AC0D','TURY':'#117A65','70Mai':'#8E44AD','OBBO':'#E67E22',
-  'FLEX':'#D35400','ROYAL PADS':'#CB4335','CAT':'#566573',
-};
-const PROV_MAP = {
-  'Buenos Aires':'Buenos Aires','Ciudad Autónoma de Buenos Aires':'CABA',
-  'Córdoba':'Córdoba','Mendoza':'Mendoza','Santa Fe':'Santa Fe',
-  'Entre Ríos':'Entre Ríos','Tucumán':'Tucumán','Salta':'Salta','Jujuy':'Jujuy',
-  'Chaco':'Chaco','Formosa':'Formosa','Misiones':'Misiones','Corrientes':'Corrientes',
-  'La Rioja':'La Rioja','Catamarca':'Catamarca','San Juan':'San Juan',
-  'San Luis':'San Luis','La Pampa':'La Pampa','Santiago del Estero':'Santiago del Estero',
-  'Neuquén':'Neuquén','Río Negro':'Río Negro','Chubut':'Chubut',
-  'Santa Cruz':'Santa Cruz','Tierra del Fuego':'Tierra del Fuego',
-};
+const VCOLORS  = {'Matias Matozza':'#2E86AB','Veronica Albarracin':'#E8A020','Alejandro Contardo':'#1E8449','Nahuel Pontino':'#8E44AD','Oscar Luna':'#E74C3C','Hernan Villamil':'#117A65'};
+const MCOLORS  = {'McGard':'#1A5276','Multicap':'#1E8449','HELLA':'#E74C3C','WINBO':'#2E86AB','SONAX':'#D4AC0D','TURY':'#117A65','70Mai':'#8E44AD','OBBO':'#E67E22','FLEX':'#D35400','ROYAL PADS':'#CB4335'};
+const SEGS     = ['Terminal','Terminal Toyota','Especial','Dealer / Concesionaria','Aftermarket','Aftermarket - Sonax'];
+const EMPRESAS = ['ABC ACCESORIOS S.R.L.','ABC - PRESUPUESTO','MULTICAPOTAS S.R.L.'];
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
-let user = null, isGer = false, charts = {}, lmap = null, llayer = null;
+let user=null, isGer=false, charts={}, lmap=null, llayer=null;
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
-function fmt(n) {
-  if (!n || isNaN(n)) return '$0';
-  var a = Math.abs(n);
-  if (a >= 1e9) return '$' + (n/1e9).toFixed(1) + 'B';
-  if (a >= 1e6) return '$' + (n/1e6).toFixed(1) + 'M';
-  if (a >= 1e3) return '$' + (n/1e3).toFixed(0) + 'K';
-  return '$' + Math.round(n).toLocaleString('es-AR');
-}
-function fmtFull(n) { return n ? '$' + Math.round(n).toLocaleString('es-AR') : '$0'; }
-function varBadge(curr, prev) {
-  if (!prev) return '<span class="badge bb">Nuevo</span>';
-  var d = ((curr-prev)/prev*100).toFixed(0);
-  if (curr===0) return '<span class="badge br">Sin compras</span>';
-  if (d >= 0)   return '<span class="badge bg">▲ '+d+'%</span>';
-  return '<span class="badge br">▼ '+Math.abs(d)+'%</span>';
-}
-function dChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
-function switchTab(i) {
-  document.querySelectorAll('.tab').forEach(function(b,j){ b.classList.toggle('active',j===i); });
-  document.querySelectorAll('.pane').forEach(function(p,j){ p.classList.toggle('active',j===i); });
-  if (lmap) setTimeout(function(){ lmap.invalidateSize(); }, 150);
-}
-function el(id) { return document.getElementById(id); }
+function el(id){return document.getElementById(id);}
+function fmt(n){if(!n||isNaN(n))return '$0';var a=Math.abs(n);if(a>=1e9)return '$'+(n/1e9).toFixed(1)+'B';if(a>=1e6)return '$'+(n/1e6).toFixed(1)+'M';if(a>=1e3)return '$'+(n/1e3).toFixed(0)+'K';return '$'+Math.round(n).toLocaleString('es-AR');}
+function fmtFull(n){return n?'$'+Math.round(n).toLocaleString('es-AR'):'$0';}
+function varBadge(curr,prev){if(!prev)return '<span class="badge bb">Nuevo</span>';var d=((curr-prev)/prev*100).toFixed(0);if(curr===0)return '<span class="badge br">Sin compras</span>';if(d>=0)return '<span class="badge bg">▲ '+d+'%</span>';return '<span class="badge br">▼ '+Math.abs(d)+'%</span>';}
+function dChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+function kpi(lbl,val,sub,color){return '<div class="kpi" style="border-color:'+color+'"><div class="kpi-lbl">'+lbl+'</div><div class="kpi-val">'+val+'</div><div class="kpi-sub">'+sub+'</div></div>';}
+function switchTab(i){document.querySelectorAll('.tab').forEach(function(b,j){b.classList.toggle('active',j===i);});document.querySelectorAll('.pane').forEach(function(p,j){p.classList.toggle('active',j===i);});if(lmap)setTimeout(function(){lmap.invalidateSize();},150);}
+function makeTabs(tabs){el('tabs').innerHTML=tabs.map(function(t,i){return '<button class="tab'+(i===0?' active':'')+'" onclick="switchTab('+i+')">'+t+'</button>';}).join('');el('content').innerHTML=tabs.map(function(t,i){return '<div class="pane'+(i===0?' active':'')+'" id="pane'+i+'"></div>';}).join('');}
 
 // ── LOGIN ─────────────────────────────────────────────────────────────────────
-function onUsrChange() {
-  var sel = el('usr').value;
-  el('pass-wrap').style.display = sel ? 'block' : 'none';
-  el('upass').value = '';
-  el('lerr').style.display = 'none';
+function onUsrChange(){
+  var sel=el('usr').value;
+  el('pass-wrap').style.display=sel?'block':'none';
+  el('upass').value='';
+  el('lerr').textContent='';
 }
-function doLogin() {
-  var sel  = el('usr').value;
-  var pass = el('upass').value;
-  if (!sel) return;
-  if (sel === 'gerencia') {
-    if (pass !== GPASS) { el('lerr').style.display='block'; return; }
-    isGer = true; user = 'gerencia';
+function doLogin(){
+  var sel=el('usr').value, pass=el('upass').value;
+  if(!sel){el('lerr').textContent='Seleccioná tu nombre.';return;}
+  if(!pass){el('lerr').textContent='Ingresá tu contraseña.';return;}
+  if(sel==='gerencia'){
+    if(pass!==GPASS){el('lerr').textContent='Contraseña incorrecta.';return;}
+    isGer=true;user='gerencia';
   } else {
-    var expected = VPASSES[sel];
-    if (!expected || pass !== expected) { el('lerr').style.display='block'; return; }
-    isGer = false; user = sel;
+    if(!VPASSES[sel]||pass!==VPASSES[sel]){el('lerr').textContent='Contraseña incorrecta.';return;}
+    isGer=false;user=sel;
   }
-  el('login').style.display = 'none';
-  el('app').style.display   = 'block';
-  el('tuser').textContent   = isGer ? '👔 Gerencia' : '👤 ' + user.split(' ')[0];
+  el('login').style.display='none';
+  el('app').style.display='block';
+  el('tuser').textContent=isGer?'👔 Gerencia':'👤 '+user.split(' ')[0];
   buildApp();
 }
-function doLogout() {
-  user = null; isGer = false;
-  el('app').style.display = 'none';
-  el('login').style.display = 'flex';
-  el('usr').value = ''; el('upass').value = ''; el('pass-wrap').style.display='none';
-  el('lerr').style.display = 'none';
-  
-  el('tabs').innerHTML = ''; el('content').innerHTML = '';
-  Object.values(charts).forEach(function(c){ c.destroy(); }); charts = {};
-  if (lmap) { lmap.remove(); lmap = null; llayer = null; }
+function doLogout(){
+  el('app').style.display='none';el('login').style.display='flex';
+  el('usr').value='';el('upass').value='';el('pass-wrap').style.display='none';el('lerr').textContent='';
+  Object.values(charts).forEach(function(c){c.destroy();});charts={};
+  if(lmap){lmap.remove();lmap=null;llayer=null;}
+  el('tabs').innerHTML='';el('content').innerHTML='';
+  user=null;isGer=false;
 }
-
-// ── BUILD APP ─────────────────────────────────────────────────────────────────
-function buildApp() {
-  if (isGer) buildGerencia(); else buildVendedor(user);
-}
-function makeTabs(tabs) {
-  el('tabs').innerHTML = tabs.map(function(t,i){
-    return '<button class="tab'+(i===0?' active':'')+'" onclick="switchTab('+i+')">'+t+'</button>';
-  }).join('');
-  el('content').innerHTML = tabs.map(function(t,i){
-    return '<div class="pane'+(i===0?' active':'')+'" id="pane'+i+'"></div>';
-  }).join('');
-}
+function buildApp(){if(isGer)buildGerencia();else buildVendedor(user);}
 
 // ════════════════════════════════════════════════════════════════════════════
 // GERENCIA
 // ════════════════════════════════════════════════════════════════════════════
-function buildGerencia() {
+function buildGerencia(){
   makeTabs(['📊 Resumen','👥 Vendedores','📈 Evolución Clientes','🗺️ Mapa','🔄 Frecuencia','📦 Marcas','💰 Cobranzas','🔁 Retención','🚘 VW Argentina','🔍 Filtros']);
-  // Rename panes for new modules
-  var panes = document.querySelectorAll('.pane');
-  var names = ['pane0','pane1','pane2','pane3','pane4','pane5','pane6','pane-ret','pane-vw','pane-filtros'];
-  panes.forEach(function(p,i){ if(names[i]) p.id = names[i]; });
-  buildGResumen(); buildGVendedores(); buildGCliEvol(); buildGMapa(); buildGFrecuencia(); buildGMarcas(); buildGCobranzas(); buildGRetencion(); buildGVW(); buildGFiltros();
+  buildGResumen();buildGVendedores();buildGCliEvol();buildGMapa();buildGFrecuencia();buildGMarcas();buildGCobranzas();buildGRetencion();buildGVW();buildGFiltros();
 }
 
 // ── RESUMEN ───────────────────────────────────────────────────────────────────
-function buildGResumen() {
-  var vvm = SD.venta_vend_mes, vem = SD.venta_emp_mes;
-  var abcL = MESES.reduce(function(s,m){return s+(vem['ABC ACCESORIOS S.R.L.'][m]||0);},0);
-  var abcP = MESES.reduce(function(s,m){return s+(vem['ABC - PRESUPUESTO'][m]||0);},0);
-  var mc   = MESES.reduce(function(s,m){return s+(vem['MULTICAPOTAS S.R.L.'][m]||0);},0);
-  var tot  = abcL + abcP + mc;
-  var mar  = Object.keys(vem).reduce(function(s,e){return s+(vem[e][MESES[MESES.length-1]]||0);},0);
-  var feb  = Object.keys(vem).reduce(function(s,e){return s+(vem[e][MESES[MESES.length-2]]||0);},0);
-
-  el('pane0').innerHTML =
-    '<div class="kpi-grid">' +
-      kpi('TOTAL '+MESES_L[MESES[0]].substring(0,3)+'-'+MESES_L[MESES[MESES.length-1]]+' 2026', fmt(tot), 'ABC + Multicap · '+MESES.length+' meses', 'var(--navy)') +
-      kpi('ABC ACCESORIOS', fmt(abcL+abcP), 'Legal + Presupuesto', 'var(--abc)') +
-      kpi('MULTICAPOTAS', fmt(mc), 'Q1 2026', 'var(--mc)') +
-      kpi((MESES_L[MESES[MESES.length-1]]||'Ult.Mes').toUpperCase()+' 2026', fmt(mar), 'vs '+(MESES_L[MESES[MESES.length-2]]||'ant')+': '+varBadge(mar,feb), 'var(--accent)') +
-      kpi('CLIENTES EN RIESGO', SD.clientes_caidos_global.length+'', 'Sin compras en '+(MESES_L[MESES[MESES.length-1]]||'último mes'), 'var(--red)') +
-    '</div>' +
-    '<div class="g2">' +
-      '<div class="card"><div class="ctitle">📈 Evolución por Empresa</div><div class="ch"><canvas id="c-emp"></canvas></div></div>' +
-      '<div class="card"><div class="ctitle">👥 Ventas por Vendedor Q1</div><div class="ch"><canvas id="c-vend"></canvas></div></div>' +
-    '</div>' +
-    '<div class="g2">' +
-      '<div class="card"><div class="ctitle">🥧 Mix por Empresa</div><div class="ch"><canvas id="c-mix"></canvas></div></div>' +
-      '<div class="card"><div class="ctitle">📅 Evolución por Vendedor</div><div class="ch"><canvas id="c-vevol"></canvas></div></div>' +
+function buildGResumen(){
+  var vem=SD.venta_emp_mes, vvm=SD.venta_vend_mes;
+  var abcL=MESES.reduce(function(s,m){return s+(vem['ABC ACCESORIOS S.R.L.'][m]||0);},0);
+  var abcP=MESES.reduce(function(s,m){return s+(vem['ABC - PRESUPUESTO'][m]||0);},0);
+  var mc=MESES.reduce(function(s,m){return s+(vem['MULTICAPOTAS S.R.L.'][m]||0);},0);
+  var tot=abcL+abcP+mc;
+  var mar=EMPRESAS.reduce(function(s,e){return s+(vem[e][MESES[MESES.length-1]]||0);},0);
+  var pen=EMPRESAS.reduce(function(s,e){return s+(vem[e][MESES[MESES.length-2]]||0);},0);
+  var ultNom=MESES_L[MESES[MESES.length-1]]||'';
+  el('pane0').innerHTML=
+    '<div class="kpi-grid">'+
+      kpi('TOTAL '+MESES_L[MESES[0]].substring(0,3)+'–'+ultNom+' 2026',fmt(tot),'ABC + Multicap · '+MESES.length+' meses','var(--navy)')+
+      kpi('ABC ACCESORIOS',fmt(abcL+abcP),'Legal + Presupuesto','var(--abc)')+
+      kpi('MULTICAPOTAS',fmt(mc),'Q1–Q2 2026','var(--mc)')+
+      kpi(ultNom.toUpperCase()+' 2026',fmt(mar),'vs '+(MESES_L[MESES[MESES.length-2]]||'')+': '+varBadge(mar,pen),'var(--accent)')+
+      kpi('CLIENTES EN RIESGO',SD.clientes_caidos_global.length+'','Sin compras en '+ultNom,'var(--red)')+
+    '</div>'+
+    '<div class="g2">'+
+      '<div class="card"><div class="ctitle">📈 Evolución por Empresa</div><div class="ch"><canvas id="c-emp"></canvas></div></div>'+
+      '<div class="card"><div class="ctitle">👥 Ventas por Vendedor</div><div class="ch"><canvas id="c-vend"></canvas></div></div>'+
+    '</div>'+
+    '<div class="g2">'+
+      '<div class="card"><div class="ctitle">🥧 Mix por Empresa</div><div class="ch"><canvas id="c-mix"></canvas></div></div>'+
+      '<div class="card"><div class="ctitle">📅 Evolución por Vendedor</div><div class="ch"><canvas id="c-vevol"></canvas></div></div>'+
     '</div>';
-
+  var lbls=MESES.map(function(m){return (MESES_L[m]||m).substring(0,3);});
   setTimeout(function(){
     dChart('c-emp');
-    charts['c-emp'] = new Chart(el('c-emp'),{type:'bar',data:{labels:MESES.map(function(m){return (MESES_L[m]||m).substring(0,3);}),datasets:[
+    charts['c-emp']=new Chart(el('c-emp'),{type:'bar',data:{labels:lbls,datasets:[
       {label:'ABC Legal',data:MESES.map(function(m){return vem['ABC ACCESORIOS S.R.L.'][m]||0;}),backgroundColor:'#2E86AB'},
       {label:'Presupuesto',data:MESES.map(function(m){return vem['ABC - PRESUPUESTO'][m]||0;}),backgroundColor:'#E8A020'},
       {label:'Multicap',data:MESES.map(function(m){return vem['MULTICAPOTAS S.R.L.'][m]||0;}),backgroundColor:'#7B2D8B'},
     ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{x:{stacked:true},y:{stacked:true,ticks:{callback:fmt}}}}});
-
-    var vt = VENDEDORES.map(function(v){return MESES.reduce(function(s,m){return s+(vvm[v][m]||0);},0);});
+    var vt=VENDEDORES.map(function(v){return MESES.reduce(function(s,m){return s+(vvm[v][m]||0);},0);});
     dChart('c-vend');
-    charts['c-vend'] = new Chart(el('c-vend'),{type:'bar',data:{labels:VENDEDORES.map(function(v){return v.split(' ')[0];}),datasets:[{data:vt,backgroundColor:VENDEDORES.map(function(v){return VCOLORS[v]||'#888';})}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:fmt}}}}});
-
+    charts['c-vend']=new Chart(el('c-vend'),{type:'bar',data:{labels:VENDEDORES.map(function(v){return v.split(' ')[0];}),datasets:[{data:vt,backgroundColor:VENDEDORES.map(function(v){return VCOLORS[v]||'#888';})}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:fmt}}}}});
     dChart('c-mix');
-    charts['c-mix'] = new Chart(el('c-mix'),{type:'doughnut',data:{labels:['ABC Legal','Presupuesto','Multicap'],datasets:[{data:[abcL,abcP,mc],backgroundColor:['#2E86AB','#E8A020','#7B2D8B']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
-
+    charts['c-mix']=new Chart(el('c-mix'),{type:'doughnut',data:{labels:['ABC Legal','Presupuesto','Multicap'],datasets:[{data:[abcL,abcP,mc],backgroundColor:['#2E86AB','#E8A020','#7B2D8B']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
     dChart('c-vevol');
-    charts['c-vevol'] = new Chart(el('c-vevol'),{type:'line',data:{labels:MESES.map(function(m){return (MESES_L[m]||m).substring(0,3);}),datasets:VENDEDORES.map(function(v){return{label:v.split(' ')[0],data:MESES.map(function(m){return vvm[v][m]||0;}),borderColor:VCOLORS[v]||'#888',backgroundColor:'transparent',tension:.3,pointRadius:4};})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{ticks:{callback:fmt}}}}});
+    charts['c-vevol']=new Chart(el('c-vevol'),{type:'line',data:{labels:lbls,datasets:VENDEDORES.map(function(v){return{label:v.split(' ')[0],data:MESES.map(function(m){return vvm[v][m]||0;}),borderColor:VCOLORS[v]||'#888',backgroundColor:'transparent',tension:.3,pointRadius:4};})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{ticks:{callback:fmt}}}}});
   },50);
 }
-function kpi(lbl,val,sub,color) {
-  return '<div class="kpi" style="border-color:'+color+'"><div class="kpi-lbl">'+lbl+'</div><div class="kpi-val">'+val+'</div><div class="kpi-sub">'+sub+'</div></div>';
-}
 
-// ── VENDEDORES ────────────────────────────────────────────────────────────────
-function buildGVendedores() {
-  var vvm = SD.venta_vend_mes;
-  var sorted = VENDEDORES.slice().sort(function(a,b){
-    return MESES.reduce(function(s,m){return s+(vvm[b][m]||0);},0) - MESES.reduce(function(s,m){return s+(vvm[a][m]||0);},0);
-  });
-  var maxT = MESES.reduce(function(s,m){return s+(vvm[sorted[0]][m]||0);},0);
-  var pc = ['gold','silver','bronze','rnorm','rnorm','rnorm'];
-
-  var rankHTML = sorted.map(function(v,i){
-    var t = MESES.reduce(function(s,m){return s+(vvm[v][m]||0);},0);
-    var ncli = Object.keys(SD.vendedor_detalle[v].clientes_mes['2026-03']||{}).length;
-    return '<div class="ri">' +
-      '<div class="rpos '+pc[i]+'">'+(i+1)+'</div>' +
-      '<div class="rname">'+v+'<div class="rsub">'+ncli+' clientes activos Mar</div></div>' +
-      '<div class="rbar"><div class="rbg"><div class="rbar-fill" style="width:'+Math.round(t/maxT*100)+'%;background:'+VCOLORS[v]+'"></div></div></div>' +
-      '<div class="ramt" style="color:'+VCOLORS[v]+'">'+fmt(t)+'</div>' +
-    '</div>';
+// ── VENDEDORES (gerencia) ─────────────────────────────────────────────────────
+function buildGVendedores(){
+  var vvm=SD.venta_vend_mes;
+  var sorted=VENDEDORES.slice().sort(function(a,b){return MESES.reduce(function(s,m){return s+(vvm[b][m]||0);},0)-MESES.reduce(function(s,m){return s+(vvm[a][m]||0);},0);});
+  var maxT=MESES.reduce(function(s,m){return s+(vvm[sorted[0]][m]||0);},0);
+  var avgT=sorted.reduce(function(s,v){return s+MESES.reduce(function(a,m){return a+(vvm[v][m]||0);},0);},0)/sorted.length;
+  var pc=['gold','silver','bronze','rnorm','rnorm','rnorm'];
+  var rankHTML=sorted.map(function(v,i){
+    var t=MESES.reduce(function(s,m){return s+(vvm[v][m]||0);},0);
+    var pct=Math.round(t/maxT*100);
+    var ncli=Object.keys(SD.vendedor_detalle[v].clientes_mes[MESES[MESES.length-1]]||{}).length;
+    return '<div class="ri"><div class="rpos '+pc[i]+'">'+(i+1)+'</div>'+
+      '<div class="rname">'+v.split(' ')[0]+'<div class="rsub">'+ncli+' clientes · '+pct+'% del líder</div></div>'+
+      '<div class="rbar"><div class="rbg"><div class="rbar-fill" style="width:'+pct+'%;background:'+VCOLORS[v]+'"></div></div></div>'+
+      '<div class="ramt" style="color:'+VCOLORS[v]+'">'+pct+'%</div></div>';
   }).join('');
-
-  var avgT = sorted.reduce(function(s,v){return s+MESES.reduce(function(a,m){return a+(vvm[v][m]||0);},0);},0)/sorted.length;
-  var tblHTML = '<div class="tscroll"><table class="tbl"><thead><tr>' +
-    '<th>Vendedor</th><th class="num">% del líder</th><th class="num">vs Promedio</th><th>Tendencia</th><th class="num">Clientes</th></tr></thead><tbody>' +
+  var tblHTML='<div class="tscroll"><table class="tbl"><thead><tr><th>Vendedor</th><th class="num">% del Líder</th><th>vs Promedio</th><th>Tendencia</th><th class="num">Clientes</th></tr></thead><tbody>'+
     sorted.map(function(v){
       var t=MESES.reduce(function(s,m){return s+(vvm[v][m]||0);},0);
       var pct=Math.round(t/maxT*100);
       var vsAvg=Math.round((t-avgT)/avgT*100);
       var e=vvm[v][MESES[0]]||0, ult=vvm[v][MESES[MESES.length-1]]||0;
       var ncli=Object.keys(SD.vendedor_detalle[v].clientes_mes[MESES[MESES.length-1]]||{}).length;
-      var badge=vsAvg>=0?'<span class="badge bg">▲ '+vsAvg+'%</span>':'<span class="badge br">▼ '+Math.abs(vsAvg)+'%</span>';
-      return '<tr><td><b>'+v.split(' ')[0]+'</b></td>' +
-        '<td class="num"><b>'+pct+'%</b></td>' +
-        '<td class="num">'+badge+'</td>' +
-        '<td>'+varBadge(ult,e)+'</td>' +
-        '<td class="num">'+ncli+'</td></tr>';
-    }).join('') +
-    '</tbody></table></div>';
-
-  el('pane1').innerHTML =
-    '<div class="card"><div class="ctitle">🏆 Ranking — Q1 2026</div>'+rankHTML+'</div>' +
-    '<div class="card"><div class="ctitle">📊 Detalle</div>'+tblHTML+'</div>';
+      var avgBadge=vsAvg>=0?'<span class="badge bg">▲ '+vsAvg+'%</span>':'<span class="badge br">▼ '+Math.abs(vsAvg)+'%</span>';
+      return '<tr><td><b>'+v.split(' ')[0]+'</b></td><td class="num"><b>'+pct+'%</b></td><td>'+avgBadge+'</td><td>'+varBadge(ult,e)+'</td><td class="num">'+ncli+'</td></tr>';
+    }).join('')+'</tbody></table></div>';
+  el('pane1').innerHTML='<div class="card"><div class="ctitle">🏆 Ranking del Equipo</div>'+rankHTML+'</div><div class="card"><div class="ctitle">📊 Detalle</div>'+tblHTML+'</div>';
 }
 
 // ── EVOLUCIÓN CLIENTES ────────────────────────────────────────────────────────
-function buildGCliEvol() {
-  var segOpts = '<option value="">Todos</option><option>Terminal</option><option>Terminal Toyota</option><option>Especial</option><option>Dealer / Concesionaria</option><option>Aftermarket</option><option>Aftermarket - Sonax</option>';
-  el('pane2').innerHTML =
-    '<div class="card"><div class="ctitle">📈 Evolución mensual — Top clientes</div>' +
-    '<div class="fbar">' +
-      '<span class="flbl">Mostrar:</span>' +
-      '<select class="fsel" id="etn" onchange="renderCliEvol()"><option value="5">Top 5</option><option value="10" selected>Top 10</option><option value="20">Top 20</option></select>' +
-      '<span class="flbl">Segmento:</span>' +
-      '<select class="fsel" id="eseg" onchange="renderCliEvol()">'+segOpts+'</select>' +
-    '</div>' +
-    '<div class="ch-lg"><canvas id="c-cli-evol"></canvas></div></div>' +
-    '<div class="card"><div class="ctitle">📋 Detalle</div>' +
-    '<div class="tscroll"><table class="tbl"><thead><tr><th>Cliente</th><th>Vendedor</th><th>Segmento</th><th>Provincia</th><th class="num">Ene</th><th class="num">Feb</th><th class="num">Mar</th><th class="num">Total Q1</th><th>Var</th><th>Meses</th></tr></thead><tbody id="cli-evol-tbody"></tbody></table></div></div>';
+function buildGCliEvol(){
+  var segOpts=SEGS.map(function(s){return '<option>'+s+'</option>';}).join('');
+  el('pane2').innerHTML=
+    '<div class="card"><div class="ctitle">📈 Evolución mensual — Top clientes</div>'+
+    '<div class="fbar"><span class="flbl">Mostrar:</span><select class="fsel" id="etn" onchange="renderCliEvol()"><option value="5">Top 5</option><option value="10" selected>Top 10</option><option value="20">Top 20</option></select>'+
+    '<span class="flbl">Segmento:</span><select class="fsel" id="eseg" onchange="renderCliEvol()"><option value="">Todos</option>'+segOpts+'</select></div>'+
+    '<div class="ch-lg"><canvas id="c-cli-evol"></canvas></div></div>'+
+    '<div class="card"><div class="ctitle">📋 Detalle</div><div class="tscroll"><table class="tbl"><thead><tr><th>Cliente</th><th>Vendedor</th><th>Segmento</th><th>Provincia</th>'+MESES.map(function(m){return '<th class="num">'+(MESES_L[m]||m).substring(0,3)+'</th>';}).join('')+'<th class="num">Total</th><th>Var</th><th>Meses</th></tr></thead><tbody id="cli-evol-tbody"></tbody></table></div></div>';
   renderCliEvol();
 }
-function renderCliEvol() {
-  var topN = parseInt(el('etn').value);
-  var seg  = el('eseg').value;
-  var COLS = ['#2E86AB','#E8A020','#1E8449','#C0392B','#7B2D8B','#117A65','#D35400','#8E44AD','#1A5276','#784212','#2C3E50','#CB4335','#1ABC9C','#2980B9','#E67E22','#566573','#B7950B','#27AE60'];
-  var clis = Object.entries(SD.cli_evol)
-    .filter(function(e){ return !seg || e[1].segmento===seg; })
-    .sort(function(a,b){ return b[1].total-a[1].total; })
-    .slice(0,topN);
+function renderCliEvol(){
+  var topN=parseInt(el('etn').value), seg=el('eseg').value;
+  var COLS=['#2E86AB','#E8A020','#1E8449','#C0392B','#7B2D8B','#117A65','#D35400','#8E44AD','#1A5276','#784212','#2C3E50','#CB4335','#1ABC9C','#2980B9','#E67E22','#566573','#B7950B','#27AE60'];
+  var clis=Object.entries(SD.cli_evol).filter(function(e){return !seg||e[1].segmento===seg;}).sort(function(a,b){return b[1].total-a[1].total;}).slice(0,topN);
   dChart('c-cli-evol');
-  charts['c-cli-evol'] = new Chart(el('c-cli-evol'),{type:'line',data:{labels:MESES.map(function(m){return (MESES_L[m]||m).substring(0,3);}),datasets:clis.map(function(e,i){return{label:e[0].length>25?e[0].substring(0,25)+'…':e[0],data:MESES.map(function(m){return e[1].meses[m]||0;}),borderColor:COLS[i%COLS.length],backgroundColor:'transparent',tension:.3,pointRadius:5,borderWidth:2};})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:10}}}},scales:{y:{ticks:{callback:fmt}}}}});
-  el('cli-evol-tbody').innerHTML = clis.map(function(e){
-    var c=e[0],d=e[1],en=d.meses['2026-01']||0,fe=d.meses['2026-02']||0,ma=d.meses['2026-03']||0;
-    var star=d.meses_activo===3?'🟢 3/3':d.meses_activo===2?'🟡 2/3':'🔴 1/3';
-    return '<tr><td><b>'+c+'</b></td><td>'+d.vendedor+'</td><td><span class="badge bb">'+d.segmento+'</span></td><td>'+(d.provincia||'—')+'</td><td class="num">'+fmt(en)+'</td><td class="num">'+fmt(fe)+'</td><td class="num">'+fmt(ma)+'</td><td class="num"><b>'+fmt(d.total)+'</b></td><td>'+varBadge(ma,en)+'</td><td>'+star+'</td></tr>';
+  charts['c-cli-evol']=new Chart(el('c-cli-evol'),{type:'line',data:{labels:MESES.map(function(m){return (MESES_L[m]||m).substring(0,3);}),datasets:clis.map(function(e,i){return{label:e[0].length>25?e[0].substring(0,25)+'…':e[0],data:MESES.map(function(m){return e[1].meses[m]||0;}),borderColor:COLS[i%COLS.length],backgroundColor:'transparent',tension:.3,pointRadius:5,borderWidth:2};})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:10}}}},scales:{y:{ticks:{callback:fmt}}}}});
+  el('cli-evol-tbody').innerHTML=clis.map(function(e){
+    var c=e[0],d=e[1],star=d.meses_activo===MESES.length?'🟢 '+d.meses_activo+'/'+MESES.length:d.meses_activo>=MESES.length-1?'🟡 '+d.meses_activo+'/'+MESES.length:'🔴 '+d.meses_activo+'/'+MESES.length;
+    return '<tr><td><b>'+c+'</b></td><td>'+d.vendedor+'</td><td><span class="badge bb">'+d.segmento+'</span></td><td>'+(d.provincia||'—')+'</td>'+MESES.map(function(m){return '<td class="num">'+fmt(d.meses[m]||0)+'</td>';}).join('')+'<td class="num"><b>'+fmt(d.total)+'</b></td><td>'+varBadge(d.meses[MESES[MESES.length-1]]||0,d.meses[MESES[0]]||0)+'</td><td>'+star+'</td></tr>';
   }).join('');
 }
 
 // ── MAPA ──────────────────────────────────────────────────────────────────────
-function buildGMapa() {
-  var marcas   = SD.geo.marcas_list;
-  var familias = SD.geo.familias_list;
-  var mOpts = marcas.map(function(m){return '<option>'+m+'</option>';}).join('');
-  var fOpts = familias.map(function(f){return '<option>'+f+'</option>';}).join('');
-
-  el('pane3').innerHTML =
-    '<div class="card" style="margin-bottom:20px"><div class="ctitle">🗺️ Presencia Geográfica</div>' +
-    '<div class="fbar">' +
-      '<span class="flbl">Ver:</span>' +
-      '<select class="fsel" id="mmetric" onchange="refreshMap()"><option value="importe">Facturación</option><option value="clientes">Clientes</option></select>' +
-      '<span class="flbl">Marca:</span>' +
-      '<select class="fsel" id="mmarca" onchange="onMF(\'m\')"><option value="">Todas</option>'+mOpts+'</select>' +
-      '<span class="flbl">Vendedor:</span>' +'<select class="fsel" id="mvendedor" onchange="onMF(\"v\")"><option value="">Todos</option>' +['Matias Matozza','Veronica Albarracin','Alejandro Contardo','Nahuel Pontino','Oscar Luna','Hernan Villamil'].map(function(v){return '<option>'+v+'</option>';}).join('') +'</select>' +'<span class="flbl">Familia:</span>' +
-      '<select class="fsel" id="mfamilia" onchange="onMF(\'f\')"><option value="">Todas</option>'+fOpts+'</select>' +
-    '</div>' +
-    '<div id="leaflet-map"></div></div>' +
-    '<div class="g2">' +
-      '<div class="card"><div class="ctitle">📊 Ranking de Provincias</div><div id="prov-rank"></div></div>' +
-      '<div class="card" id="prov-det-card" style="display:none"><div class="ctitle">📍 <span id="prov-det-name"></span></div><div id="prov-det"></div></div>' +
-    '</div>';
-
-  setTimeout(function(){ initMap(); renderProvRank(); }, 200);
+const PROV_MAP={'Buenos Aires':'Buenos Aires','Ciudad Autónoma de Buenos Aires':'CABA','Córdoba':'Córdoba','Santa Fe':'Santa Fe','Entre Ríos':'Entre Ríos','Mendoza':'Mendoza','Tucumán':'Tucumán','Salta':'Salta','Jujuy':'Jujuy','Chaco':'Chaco','Formosa':'Formosa','Misiones':'Misiones','Corrientes':'Corrientes','La Rioja':'La Rioja','Catamarca':'Catamarca','San Juan':'San Juan','San Luis':'San Luis','La Pampa':'La Pampa','Santiago del Estero':'Santiago del Estero','Neuquén':'Neuquén','Río Negro':'Río Negro','Chubut':'Chubut','Santa Cruz':'Santa Cruz','Tierra del Fuego':'Tierra del Fuego'};
+function buildGMapa(){
+  var ml=SD.geo.marcas_list, fl=SD.geo.familias_list;
+  el('pane3').innerHTML=
+    '<div class="card" style="margin-bottom:16px"><div class="ctitle">🗺️ Presencia Geográfica</div>'+
+    '<div class="fbar">'+
+      '<span class="flbl">Ver:</span><select class="fsel" id="mmetric" onchange="refreshMap()"><option value="importe">Facturación</option><option value="clientes">Clientes</option></select>'+
+      '<span class="flbl">Marca:</span><select class="fsel" id="mmarca" onchange="onMF(\'m\')"><option value="">Todas</option>'+ml.map(function(m){return '<option>'+m+'</option>';}).join('')+'</select>'+
+      '<span class="flbl">Familia:</span><select class="fsel" id="mfamilia" onchange="onMF(\'f\')"><option value="">Todas</option>'+fl.map(function(f){return '<option>'+f+'</option>';}).join('')+'</select>'+
+      '<span class="flbl">Vendedor:</span><select class="fsel" id="mvendedor" onchange="onMF(\'v\')"><option value="">Todos</option>'+VENDEDORES.map(function(v){return '<option>'+v+'</option>';}).join('')+'</select>'+
+    '</div><div id="leaflet-map"></div></div>'+
+    '<div class="g2"><div class="card"><div class="ctitle">📊 Ranking de Provincias</div><div id="prov-rank"></div></div>'+
+    '<div class="card" id="prov-det-card" style="display:none"><div class="ctitle">📍 <span id="prov-det-name"></span></div><div id="prov-det"></div></div></div>';
+  setTimeout(function(){initMap();renderProvRank();},200);
 }
-function getMapData() {
-  var m = el('mmarca')    ? el('mmarca').value    : '';
-  var f = el('mfamilia')  ? el('mfamilia').value  : '';
-  var v = el('mvendedor') ? el('mvendedor').value : '';
-  if (m) return SD.geo.marcas[m]    || {};
-  if (f) return SD.geo.familias[f]  || {};
-  if (v) return (SD.geo.vendedores && SD.geo.vendedores[v]) || {};
-  return SD.geo.total || {};
-}
-function onMF(type) {
-  if (type==='m') { el('mfamilia').value=''; if(el('mvendedor')) el('mvendedor').value=''; }
-  if (type==='f') { el('mmarca').value='';   if(el('mvendedor')) el('mvendedor').value=''; }
-  if (type==='v') { el('mmarca').value='';   el('mfamilia').value=''; }
-  refreshMap(); renderProvRank();
-}
-function provColor(val, maxVal) {
-  if (!val || val===0) return '#E8ECF4';
-  var t = 0.15 + 0.85*(val/maxVal);
-  return 'rgb('+Math.round(61*(1-t)+27*t)+','+Math.round(90*(1-t)+42*t)+','+Math.round(153*(1-t)+71*t)+')';
-}
-function initMap() {
-  if (lmap) { lmap.remove(); lmap=null; llayer=null; }
-  lmap = L.map('leaflet-map',{center:[-40,-65],zoom:4,zoomControl:true,scrollWheelZoom:false,attributionControl:false});
-  refreshMap();
-}
-function refreshMap() {
-  if (!lmap) return;
-  var mapData = getMapData();
-  var metric  = el('mmetric') ? el('mmetric').value : 'importe';
-  var vals    = Object.values(mapData).map(function(d){ return metric==='importe'?d.importe:d.clientes; });
-  var maxVal  = Math.max.apply(null, vals.concat([1]));
-
-  if (llayer) { llayer.remove(); llayer=null; }
-  llayer = L.geoJSON(GEO, {
-    style: function(feature) {
-      var pk  = PROV_MAP[feature.properties.name] || feature.properties.name;
-      var d   = mapData[pk];
-      var val = d ? (metric==='importe'?d.importe:d.clientes) : 0;
-      return {fillColor:provColor(val,maxVal), fillOpacity:val>0?.85:.4, color:'white', weight:1.5};
-    },
-    onEachFeature: function(feature, layer) {
-      var pk  = PROV_MAP[feature.properties.name] || feature.properties.name;
-      var d   = mapData[pk];
-      var lbl = d ? (metric==='importe'?fmt(d.importe):d.clientes+' clientes') : 'Sin datos';
-      layer.bindTooltip('<b>'+feature.properties.name+'</b><br>'+lbl,{sticky:true,opacity:.95});
-      layer.on({
-        mouseover: function(e){ e.target.setStyle({weight:3,color:'#E8A020',fillOpacity:.95}); },
-        mouseout:  function(e){ llayer.resetStyle(e.target); },
-        click:     function(){  showProv(pk); }
-      });
+function getMapData(){var m=el('mmarca')?.value,f=el('mfamilia')?.value,v=el('mvendedor')?.value;if(m)return SD.geo.marcas[m]||{};if(f)return SD.geo.familias[f]||{};if(v)return SD.geo.vendedores[v]||{};return SD.geo.total||{};}
+function onMF(t){if(t==='m'){el('mfamilia').value='';el('mvendedor').value='';}if(t==='f'){el('mmarca').value='';el('mvendedor').value='';}if(t==='v'){el('mmarca').value='';el('mfamilia').value='';}refreshMap();renderProvRank();}
+function provColor(v,max){if(!v||v===0)return '#E8ECF4';var t=0.15+0.85*(v/max);return 'rgb('+Math.round(61*(1-t)+27*t)+','+Math.round(90*(1-t)+42*t)+','+Math.round(153*(1-t)+71*t)+')';}
+function initMap(){if(lmap){lmap.remove();lmap=null;llayer=null;}lmap=L.map('leaflet-map',{center:[-40,-65],zoom:4,zoomControl:true,scrollWheelZoom:false,attributionControl:false});refreshMap();}
+function refreshMap(){
+  if(!lmap)return;
+  var md=getMapData(),metric=el('mmetric')?.value||'importe';
+  var vals=Object.values(md).map(function(d){return metric==='importe'?d.importe:d.clientes;});
+  var maxV=Math.max.apply(null,vals.concat([1]));
+  if(llayer){llayer.remove();llayer=null;}
+  llayer=L.geoJSON(GEO_ARG,{
+    style:function(f){var pk=PROV_MAP[f.properties.name]||f.properties.name,d=md[pk],val=d?(metric==='importe'?d.importe:d.clientes):0;return{fillColor:provColor(val,maxV),fillOpacity:val>0?.85:.4,color:'white',weight:1.5};},
+    onEachFeature:function(f,layer){
+      var pk=PROV_MAP[f.properties.name]||f.properties.name,d=md[pk];
+      var lbl=d?(metric==='importe'?fmt(d.importe):d.clientes+' clientes'):'Sin datos';
+      layer.bindTooltip('<b>'+f.properties.name+'</b><br>'+lbl,{sticky:true,opacity:.95});
+      layer.on({mouseover:function(e){e.target.setStyle({weight:3,color:'#E8A020',fillOpacity:.95});},mouseout:function(e){llayer.resetStyle(e.target);},click:function(){showProv(pk);}});
     }
   }).addTo(lmap);
-  lmap.setView([-38, -65], 4);
+  lmap.setView([-40,-65],4);
   renderProvRank();
 }
-function renderProvRank() {
-  var mapData = getMapData();
-  var metric  = el('mmetric') ? el('mmetric').value : 'importe';
-  var list = Object.entries(mapData)
-    .map(function(e){ return {p:e[0],v:metric==='importe'?e[1].importe:e[1].clientes,d:e[1]}; })
-    .filter(function(x){ return x.v>0; })
-    .sort(function(a,b){ return b.v-a.v; });
-  if (!el('prov-rank')) return;
-  var maxR = list[0]?list[0].v:1;
-  var pc = ['gold','silver','bronze'];
-  el('prov-rank').innerHTML = list.map(function(item,i){
-    var lbl = metric==='importe' ? fmt(item.v) : item.v+' clientes';
-    var sub = metric==='importe' ? item.d.clientes+' clientes' : fmt(item.d.importe);
-    return '<div class="ri" style="cursor:pointer" onclick="showProv(\''+item.p+'\')">'+
-      '<div class="rpos '+(pc[i]||'rnorm')+'">'+(i+1)+'</div>'+
-      '<div class="rname">'+item.p+'<div class="rsub">'+sub+'</div></div>'+
-      '<div class="rbar"><div class="rbg"><div class="rbar-fill" style="width:'+Math.round(item.v/maxR*100)+'%;background:var(--navy2)"></div></div></div>'+
-      '<div class="ramt">'+lbl+'</div></div>';
-  }).join('');
+function renderProvRank(){
+  var md=getMapData(),metric=el('mmetric')?.value||'importe';
+  var list=Object.entries(md).map(function(e){return{p:e[0],v:metric==='importe'?e[1].importe:e[1].clientes,d:e[1]};}).filter(function(x){return x.v>0;}).sort(function(a,b){return b.v-a.v;});
+  var maxR=list[0]?list[0].v:1,pc=['gold','silver','bronze'];
+  if(el('prov-rank'))el('prov-rank').innerHTML=list.map(function(item,i){var lbl=metric==='importe'?fmt(item.v):item.v+' clientes',sub=metric==='importe'?item.d.clientes+' clientes':fmt(item.d.importe);return '<div class="ri" style="cursor:pointer" onclick="showProv(\''+item.p+'\')"><div class="rpos '+(pc[i]||'rnorm')+'">'+(i+1)+'</div><div class="rname">'+item.p+'<div class="rsub">'+sub+'</div></div><div class="rbar"><div class="rbg"><div class="rbar-fill" style="width:'+Math.round(item.v/maxR*100)+'%;background:var(--navy2)"></div></div></div><div class="ramt">'+lbl+'</div></div>';}).join('');
 }
-function showProv(prov) {
-  var d = getMapData()[prov];
-  if (!d) return;
-  if (el('prov-det-card')) el('prov-det-card').style.display='block';
-  if (el('prov-det-name')) el('prov-det-name').textContent=prov;
-  if (el('prov-det')) el('prov-det').innerHTML =
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">'+
-      '<div class="kpi" style="border-color:var(--navy);padding:12px"><div class="kpi-lbl">Facturación</div><div class="kpi-val" style="font-size:1.2rem">'+fmt(d.importe)+'</div></div>'+
-      '<div class="kpi" style="border-color:var(--accent);padding:12px"><div class="kpi-lbl">Clientes</div><div class="kpi-val" style="font-size:1.2rem">'+d.clientes+'</div></div>'+
-    '</div>'+
-    '<div style="font-size:.78rem;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:8px">Top clientes</div>'+
-    d.top_clientes.map(function(c){
-      return '<div class="ai info">'+
-        '<div><div class="ai-name" style="font-size:.85rem">'+c.nombre+'</div>'+
-        '<div class="ai-det">'+(c.localidad?c.localidad+' · ':'')+c.segmento+'</div></div>'+
-        '<div class="ai-amt" style="font-size:.85rem">'+fmt(c.importe)+'</div></div>';
-    }).join('');
-}
+function showProv(prov){var d=getMapData()[prov];if(!d)return;el('prov-det-card').style.display='block';el('prov-det-name').textContent=prov;el('prov-det').innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">'+kpi('Facturación',fmt(d.importe),'','var(--navy)')+kpi('Clientes',d.clientes+'','','var(--accent)')+'</div><div style="font-size:.75rem;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:8px">Top clientes</div>'+d.top_clientes.map(function(c){return '<div class="ai info"><div><div class="ai-name" style="font-size:.83rem">'+c.nombre+'</div><div class="ai-det">'+(c.localidad?c.localidad+' · ':'')+c.segmento+'</div></div><div class="ai-amt" style="font-size:.83rem">'+fmt(c.importe)+'</div></div>';}).join('');}
 
 // ── FRECUENCIA ────────────────────────────────────────────────────────────────
-function buildGFrecuencia() {
-  var fs  = SD.freq_summary;
-  var fd  = SD.freq_data;
-  var tot = (fs['4_meses']||0)+(fs['3_meses']||0)+(fs['2_meses']||0)+(fs['1_mes']||0);
-  var sorted = fd.slice().sort(function(a,b){return b.total-a.total;});
-  var totVol = sorted.reduce(function(s,c){return s+c.total;},0);
-  var cum=0, cp=sorted.map(function(c){cum+=c.total;return Math.round(cum/totVol*100);});
-  var vOpts = VENDEDORES.map(function(v){return '<option>'+v+'</option>';}).join('');
-  var sOpts = '<option>Terminal</option><option>Terminal Toyota</option><option>Especial</option><option>Dealer / Concesionaria</option><option>Aftermarket</option><option>Aftermarket - Sonax</option>';
-
-  el('pane4').innerHTML =
+function buildGFrecuencia(){
+  var fs=SD.freq_summary, fd=SD.freq_data;
+  var tot=Object.values(fs).reduce(function(s,v){return s+v;},0);
+  var sorted=fd.slice().sort(function(a,b){return b.total-a.total;});
+  var totVol=sorted.reduce(function(s,c){return s+c.total;},0);
+  var cum=0,cp=sorted.map(function(c){cum+=c.total;return Math.round(cum/totVol*100);});
+  var vOpts=VENDEDORES.map(function(v){return '<option>'+v+'</option>';}).join('');
+  var sOpts=SEGS.map(function(s){return '<option>'+s+'</option>';}).join('');
+  el('pane4').innerHTML=
     '<div class="kpi-grid">'+
-      kpi('🟢 3 de 3 meses', fs['3_meses']+'', Math.round((fs['3_meses']||0)/tot*100)+'% de la cartera', 'var(--green)')+
-      kpi('🟡 2 de 3 meses', fs['2_meses']+'', Math.round((fs['2_meses']||0)/tot*100)+'% de la cartera', 'var(--orange)')+
-      kpi('🔴 1 de 3 meses', fs['1_mes']+'',   Math.round((fs['1_mes']||0)/tot*100)+'% de la cartera',   'var(--red)')+
-      kpi('Total activa',     tot+'',            'con al menos 1 compra Q1',                          'var(--navy)')+
+      (fs['4_meses']?kpi('🟢 4 de 4 meses',(fs['4_meses']||0)+'',Math.round((fs['4_meses']||0)/tot*100)+'% de la cartera','var(--green)'):'') +
+      kpi('🟢 3 meses',(fs['3_meses']||0)+'',Math.round((fs['3_meses']||0)/tot*100)+'% de la cartera','var(--green)')+
+      kpi('🟡 2 meses',(fs['2_meses']||0)+'',Math.round((fs['2_meses']||0)/tot*100)+'% de la cartera','var(--orange)')+
+      kpi('🔴 1 mes',(fs['1_mes']||0)+'',Math.round((fs['1_mes']||0)/tot*100)+'% de la cartera','var(--red)')+
+      kpi('Total activa',tot+'','con al menos 1 compra','var(--navy)')+
     '</div>'+
-    '<div class="g2">'+
-      '<div class="card"><div class="ctitle">📊 Distribución</div><div class="ch-sm"><canvas id="c-freq"></canvas></div></div>'+
-      '<div class="card"><div class="ctitle">💰 Concentración de cartera</div>'+
-        [['Top 5',cp[4]||100],['Top 10',cp[9]||100],['Top 20',cp[19]||100]].map(function(x){
-          return '<div class="pbar"><div class="pbar-row"><span style="font-weight:600">'+x[0]+' clientes</span><span style="font-weight:800;color:var(--navy)">'+x[1]+'%</span></div><div class="pbg"><div class="pfill green" style="width:'+x[1]+'%"></div></div></div>';
-        }).join('')+
-      '</div>'+
-    '</div>'+
+    '<div class="g2"><div class="card"><div class="ctitle">📊 Distribución</div><div class="ch-sm"><canvas id="c-freq"></canvas></div></div>'+
+    '<div class="card"><div class="ctitle">💰 Concentración</div>'+[['Top 5',cp[4]||100],['Top 10',cp[9]||100],['Top 20',cp[19]||100]].map(function(x){return '<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:3px"><span style="font-weight:600">'+x[0]+' clientes</span><span style="font-weight:800;color:var(--navy)">'+x[1]+'%</span></div><div class="pbg"><div class="pfill green" style="width:'+x[1]+'%"></div></div></div>';}).join('')+'</div></div>'+
     '<div class="card"><div class="ctitle">🔄 Detalle</div>'+
-      '<div class="fbar">'+
-        '<span class="flbl">Frecuencia:</span><select class="fsel" id="ff" onchange="renderFreq()"><option value="">Todos</option><option value="3">🟢 3 meses</option><option value="2">🟡 2 meses</option><option value="1">🔴 1 mes</option></select>'+
-        '<span class="flbl">Vendedor:</span><select class="fsel" id="fv" onchange="renderFreq()"><option value="">Todos</option>'+vOpts+'</select>'+
-        '<span class="flbl">Segmento:</span><select class="fsel" id="fs" onchange="renderFreq()"><option value="">Todos</option>'+sOpts+'</select>'+
-      '</div>'+
-      '<div class="tscroll"><table class="tbl"><thead><tr><th>Cliente</th><th>Vendedor</th><th>Segmento</th><th>Provincia</th><th class="num">Ene</th><th class="num">Feb</th><th class="num">Mar</th><th class="num">Abr</th><th class="num">Total</th><th>Frecuencia</th></tr></thead><tbody id="freq-tbody"></tbody></table></div>'+
-    '</div>';
-
-  setTimeout(function(){
-    dChart('c-freq');
-    charts['c-freq'] = new Chart(el('c-freq'),{type:'bar',data:{labels:['3 meses','2 meses','1 mes'],datasets:[{data:[fs['3_meses'],fs['2_meses'],fs['1_mes']],backgroundColor:['#1E8449','#E67E22','#C0392B']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'Clientes'}}}}});
-  },50);
+    '<div class="fbar"><span class="flbl">Frecuencia:</span><select class="fsel" id="ff" onchange="renderFreq()"><option value="">Todos</option><option value="4">🟢 4 meses</option><option value="3">🟢 3 meses</option><option value="2">🟡 2 meses</option><option value="1">🔴 1 mes</option></select>'+
+    '<span class="flbl">Vendedor:</span><select class="fsel" id="fv" onchange="renderFreq()"><option value="">Todos</option>'+vOpts+'</select>'+
+    '<span class="flbl">Segmento:</span><select class="fsel" id="fsg" onchange="renderFreq()"><option value="">Todos</option>'+sOpts+'</select></div>'+
+    '<div class="tscroll"><table class="tbl"><thead><tr><th>Cliente</th><th>Vendedor</th><th>Segmento</th><th>Prov.</th>'+MESES.slice(0,4).map(function(m){return '<th class="num">'+(MESES_L[m]||m).substring(0,3)+'</th>';}).join('')+'<th class="num">Total</th><th>Frec.</th></tr></thead><tbody id="freq-tbody"></tbody></table></div></div>';
+  setTimeout(function(){dChart('c-freq');charts['c-freq']=new Chart(el('c-freq'),{type:'bar',data:{labels:['3 meses','2 meses','1 mes'],datasets:[{data:[fs['3_meses']||0,fs['2_meses']||0,fs['1_mes']||0],backgroundColor:['#1E8449','#E67E22','#C0392B']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'Clientes'}}}}});},50);
   renderFreq();
 }
-function renderFreq() {
-  var ff=el('ff').value, fv=el('fv').value, fs2=el('fs').value;
-  var d = SD.freq_data;
-  if (ff)  d=d.filter(function(r){return r.meses_activo===parseInt(ff);});
-  if (fv)  d=d.filter(function(r){return r.vendedor===fv;});
-  if (fs2) d=d.filter(function(r){return r.segmento===fs2;});
-  el('freq-tbody').innerHTML = d.map(function(r){
-    var icon=r.meses_activo===3?'🟢 3/3':r.meses_activo===2?'🟡 2/3':'🔴 1/3';
-    var bg=r.meses_activo===2?'background:#FEF9E7':r.meses_activo===1?'background:#FFF5F5':'';
-    return '<tr style="'+bg+'"><td><b>'+r.cliente+'</b></td><td>'+r.vendedor+'</td><td><span class="badge bb">'+r.segmento+'</span></td><td>'+(r.provincia||'—')+'</td><td class="num">'+(r.m1?fmt(r.m1):'—')+'</td><td class="num">'+(r.m2?fmt(r.m2):'—')+'</td><td class="num">'+(r.m3?fmt(r.m3):'—')+'</td><td class="num">'+(r.m4?fmt(r.m4):'—')+'</td><td class="num"><b>'+fmt(r.total)+'</b></td><td>'+icon+'</td></tr>';
-  }).join('');
-}
+function renderFreq(){var ff=el('ff').value,fv=el('fv').value,fs2=el('fsg').value;var d=SD.freq_data;if(ff)d=d.filter(function(r){return r.meses_activo===parseInt(ff);});if(fv)d=d.filter(function(r){return r.vendedor===fv;});if(fs2)d=d.filter(function(r){return r.segmento===fs2;});el('freq-tbody').innerHTML=d.map(function(r){var icon=r.meses_activo>=4?'🟢 '+r.meses_activo+'/'+MESES.length:r.meses_activo>=3?'🟢 '+r.meses_activo+'/'+MESES.length:r.meses_activo===2?'🟡 2/'+MESES.length:'🔴 1/'+MESES.length;var bg=r.meses_activo<=1?'background:#FFF5F5':r.meses_activo===2?'background:#FEF9E7':'';return '<tr style="'+bg+'"><td><b>'+r.cliente+'</b></td><td>'+r.vendedor+'</td><td><span class="badge bb">'+r.segmento+'</span></td><td>'+(r.provincia||'—')+'</td>'+(r.m1!==undefined?'<td class="num">'+(r.m1?fmt(r.m1):'—')+'</td>':'')+(r.m2!==undefined?'<td class="num">'+(r.m2?fmt(r.m2):'—')+'</td>':'')+(r.m3!==undefined?'<td class="num">'+(r.m3?fmt(r.m3):'—')+'</td>':'')+(r.m4!==undefined?'<td class="num">'+(r.m4?fmt(r.m4):'—')+'</td>':'')+'<td class="num"><b>'+fmt(r.total)+'</b></td><td>'+icon+'</td></tr>';}).join('');}
 
 // ── MARCAS ────────────────────────────────────────────────────────────────────
-function buildGMarcas() {
-  var mm = SD.marcas_mes;
-  var marcas = Object.keys(mm).sort(function(a,b){
-    return MESES.reduce(function(s,m){return s+(mm[b][m]||0);},0)-MESES.reduce(function(s,m){return s+(mm[a][m]||0);},0);
-  });
-  el('pane5').innerHTML =
-    '<div class="g2">'+
-      '<div class="card"><div class="ctitle">📈 Evolución top marcas</div><div class="ch"><canvas id="c-mevol"></canvas></div></div>'+
-      '<div class="card"><div class="ctitle">🥧 Mix de marcas Q1</div><div class="ch"><canvas id="c-mpie"></canvas></div></div>'+
-    '</div>'+
-    '<div class="card"><div class="ctitle">📊 Detalle por Marca</div><div class="tscroll"><table class="tbl"><thead><tr><th>Marca</th><th class="num">Enero</th><th class="num">Feb</th><th class="num">Marzo</th><th class="num">Total Q1</th><th>Var</th></tr></thead><tbody>'+
-    marcas.map(function(m){
-      var e=mm[m]['2026-01']||0,f=mm[m]['2026-02']||0,ma=mm[m]['2026-03']||0;
-      return '<tr><td><b>'+m+'</b></td><td class="num">'+fmt(e)+'</td><td class="num">'+fmt(f)+'</td><td class="num">'+fmt(ma)+'</td><td class="num"><b>'+fmt(e+f+ma)+'</b></td><td>'+varBadge(ma,e)+'</td></tr>';
-    }).join('')+
+function buildGMarcas(){
+  var mm=SD.marcas_mes;
+  var marcas=Object.keys(mm).sort(function(a,b){return MESES.reduce(function(s,m){return s+(mm[b][m]||0);},0)-MESES.reduce(function(s,m){return s+(mm[a][m]||0);},0);});
+  var lbls=MESES.map(function(m){return (MESES_L[m]||m).substring(0,3);});
+  el('pane5').innerHTML=
+    '<div class="g2"><div class="card"><div class="ctitle">📈 Evolución top marcas</div><div class="ch"><canvas id="c-mevol"></canvas></div></div>'+
+    '<div class="card"><div class="ctitle">🥧 Mix Q1-Q2</div><div class="ch"><canvas id="c-mpie"></canvas></div></div></div>'+
+    '<div class="card"><div class="ctitle">📊 Detalle</div><div class="tscroll"><table class="tbl"><thead><tr><th>Marca</th>'+lbls.map(function(l){return '<th class="num">'+l+'</th>';}).join('')+'<th class="num">Total</th><th>Var</th></tr></thead><tbody>'+
+    marcas.map(function(m){var vals=MESES.map(function(mes){return mm[m][mes]||0;});var tot=vals.reduce(function(s,v){return s+v;},0);return '<tr><td><b>'+m+'</b></td>'+vals.map(function(v){return '<td class="num">'+fmt(v)+'</td>';}).join('')+'<td class="num"><b>'+fmt(tot)+'</b></td><td>'+varBadge(vals[vals.length-1],vals[0])+'</td></tr>';}).join('')+
     '</tbody></table></div></div>';
-
-  var top8 = marcas.slice(0,8);
+  var top8=marcas.slice(0,8);
   setTimeout(function(){
     dChart('c-mevol');
-    charts['c-mevol'] = new Chart(el('c-mevol'),{type:'line',data:{labels:MESES.map(function(m){return (MESES_L[m]||m).substring(0,3);}),datasets:top8.map(function(m){return{label:m,data:MESES.map(function(mes){return mm[m][mes]||0;}),borderColor:MCOLORS[m]||'#888',backgroundColor:'transparent',tension:.3,pointRadius:4};})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{ticks:{callback:fmt}}}}});
-    var tots=top8.map(function(m){return MESES.reduce(function(s,mes){return s+(mm[m][mes]||0);},0);});
+    charts['c-mevol']=new Chart(el('c-mevol'),{type:'line',data:{labels:lbls,datasets:top8.map(function(m){return{label:m,data:MESES.map(function(mes){return mm[m][mes]||0;}),borderColor:MCOLORS[m]||'#888',backgroundColor:'transparent',tension:.3,pointRadius:4};})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{ticks:{callback:fmt}}}}});
     dChart('c-mpie');
-    charts['c-mpie'] = new Chart(el('c-mpie'),{type:'doughnut',data:{labels:top8,datasets:[{data:tots,backgroundColor:top8.map(function(m){return MCOLORS[m]||'#aaa';})}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
+    charts['c-mpie']=new Chart(el('c-mpie'),{type:'doughnut',data:{labels:top8,datasets:[{data:top8.map(function(m){return MESES.reduce(function(s,mes){return s+(mm[m][mes]||0);},0);}),backgroundColor:top8.map(function(m){return MCOLORS[m]||'#aaa';})}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
   },50);
 }
+
+// ── COBRANZAS ─────────────────────────────────────────────────────────────────
+function buildGCobranzas(){el('pane6').innerHTML='<div class="empty"><div class="ico">💰</div><p>Cargá el archivo de cobranza actualizado para ver este módulo.</p></div>';}
+
+// ── RETENCIÓN ─────────────────────────────────────────────────────────────────
+function buildGRetencion(){
+  var ret=SD.retencion;
+  var meses=SD.meses||Object.keys(ret);
+  var ML=MESES_L;
+  var labels=meses.slice(1).map(function(m){return ML[m]||m;});
+  var nuevos=meses.slice(1).map(function(m){return ret[m]?ret[m].nuevos:0;});
+  var reactiv=meses.slice(1).map(function(m){return ret[m]?ret[m].reactivados:0;});
+  var reteni=meses.slice(1).map(function(m){return ret[m]?ret[m].retenidos:0;});
+  var perdidos=meses.slice(1).map(function(m){return ret[m]?ret[m].perdidos:0;});
+  var ultimo=meses[meses.length-1];
+  el('pane7').innerHTML=
+    '<div class="kpi-grid">'+
+      kpi('Nuevos en '+ML[ultimo],(ret[ultimo]?ret[ultimo].nuevos:0)+'','Compraron por 1ª vez','var(--green)')+
+      kpi('Reactivados',(ret[ultimo]?ret[ultimo].reactivados:0)+'','Volvieron después de ausencia','var(--abc)')+
+      kpi('Retenidos',(ret[ultimo]?ret[ultimo].retenidos:0)+'','Compraron también el mes anterior','var(--navy)')+
+      kpi('Perdidos',(ret[ultimo]?ret[ultimo].perdidos:0)+'','Compraron antes y no en '+ML[ultimo],'var(--red)')+
+    '</div>'+
+    '<div class="g2">'+
+      '<div class="card"><div class="ctitle">📊 Evolución de la cartera</div><div class="ch"><canvas id="c-ret-evol"></canvas></div></div>'+
+      '<div class="card"><div class="ctitle">🔄 Tasa de retención</div><div class="ch"><canvas id="c-ret-tasa"></canvas></div></div>'+
+    '</div>'+
+    '<div class="g2">'+
+      '<div class="card"><div class="ctitle">🔴 Perdidos en '+ML[ultimo]+'</div>'+buildPerdidosList(ret[ultimo])+'</div>'+
+      '<div class="card"><div class="ctitle">🆕 Nuevos y reactivados</div>'+buildNuevosList(ret[ultimo])+'</div>'+
+    '</div>';
+  setTimeout(function(){
+    dChart('c-ret-evol');
+    charts['c-ret-evol']=new Chart(el('c-ret-evol'),{type:'bar',data:{labels:labels,datasets:[{label:'Nuevos',data:nuevos,backgroundColor:'#1E8449'},{label:'Reactivados',data:reactiv,backgroundColor:'#2E86AB'},{label:'Perdidos',data:perdidos.map(function(v){return -v;}),backgroundColor:'#C0392B'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{x:{stacked:true},y:{stacked:true,ticks:{callback:function(v){return Math.abs(v);}}}}}});
+    var tasas=meses.slice(1).map(function(m,i){var prev=ret[meses[i]]?ret[meses[i]].total:1,r=ret[m]?ret[m].retenidos:0;return prev>0?Math.round(r/prev*100):0;});
+    dChart('c-ret-tasa');
+    charts['c-ret-tasa']=new Chart(el('c-ret-tasa'),{type:'line',data:{labels:labels,datasets:[{label:'% Retenidos',data:tasas,borderColor:'#2E86AB',backgroundColor:'rgba(46,134,171,0.1)',tension:.3,pointRadius:6,fill:true}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:0,max:100,ticks:{callback:function(v){return v+'%';}}}},plugins:{legend:{display:false}}}});
+  },50);
+}
+function buildPerdidosList(md){if(!md||!md.perdidos_list||!md.perdidos_list.length)return '<div class="empty"><div class="ico">✅</div><p>Sin clientes perdidos</p></div>';return '<div class="tscroll"><table class="tbl"><thead><tr><th>Cliente</th><th>Vendedor</th><th>Segmento</th><th class="num">Historial</th></tr></thead><tbody>'+md.perdidos_list.slice(0,15).map(function(c){return '<tr><td><b>'+c.cliente+'</b></td><td>'+c.vendedor+'</td><td><span class="badge bb">'+c.segmento+'</span></td><td class="num">'+fmt(c.total_hist)+'</td></tr>';}).join('')+'</tbody></table></div>';}
+function buildNuevosList(md){if(!md)return '';var items=(md.nuevos_list||[]).map(function(c){return{c:c,t:'🆕'};}).concat((md.reactivados_list||[]).map(function(c){return{c:c,t:'🔄'};}));if(!items.length)return '<div class="empty"><div class="ico">—</div><p>Sin nuevos ni reactivados</p></div>';return '<div class="tscroll"><table class="tbl"><thead><tr><th>Cliente</th><th>Tipo</th></tr></thead><tbody>'+items.slice(0,15).map(function(x){return '<tr><td><b>'+x.c+'</b></td><td>'+x.t+'</td></tr>';}).join('')+'</tbody></table></div>';}
+
+// ── VW ARGENTINA ──────────────────────────────────────────────────────────────
+function buildGVW(){
+  var vw=SD.vw, prods=vw.productos;
+  var criticos=prods.filter(function(p){return p.riesgo_stock==='sin_stock'||p.riesgo_stock==='critico';});
+  var bajos=prods.filter(function(p){return p.riesgo_stock==='bajo';});
+  var lbls=MESES.map(function(m){return (MESES_L[m]||m).substring(0,3);});
+  el('pane8').innerHTML=
+    '<div class="kpi-grid">'+
+      kpi('TOTAL VW',fmt(vw.total),'Facturado '+MESES_L[MESES[0]]+'–'+MESES_L[MESES[MESES.length-1]],'var(--navy)')+
+      kpi('SKUs vendidos',prods.length+'','productos distintos','var(--abc)')+
+      kpi('⚠️ Riesgo crítico',criticos.length+'','sin stock o <1 mes cobertura','var(--red)')+
+      kpi('⚡ Stock bajo',bajos.length+'','menos de 2 meses cobertura','var(--orange)')+
+    '</div>'+
+    '<div class="g2"><div class="card"><div class="ctitle">📈 Evolución mensual VW</div><div class="ch"><canvas id="c-vw-evol"></canvas></div></div>'+
+    '<div class="card"><div class="ctitle">🥧 Mix de productos</div><div class="ch"><canvas id="c-vw-mix"></canvas></div></div></div>'+
+    '<div class="card" style="border-left:4px solid var(--red)"><div class="ctitle">🚨 Alertas de Stock</div>'+
+    '<div class="tscroll"><table class="tbl"><thead><tr><th>Producto</th>'+lbls.map(function(l){return '<th class="num">'+l+'</th>';}).join('')+'<th class="num">Stock</th><th>Alerta</th></tr></thead><tbody>'+
+    criticos.concat(bajos).map(function(p){
+      var badge=p.riesgo_stock==='sin_stock'||p.riesgo_stock==='critico'?'<span class="badge br">🔴 Crítico</span>':'<span class="badge bo">⚡ Bajo</span>';
+      var bg=(p.riesgo_stock==='sin_stock'||p.riesgo_stock==='critico')?'background:#FFF5F5':'background:#FFF9F0';
+      return '<tr style="'+bg+'"><td><b>'+p.producto+'</b></td>'+MESES.map(function(m){var v=p.imp_meses[m]||0;return '<td class="num">'+(v>0?fmt(v):'—')+'</td>';}).join('')+'<td class="num" style="color:'+(p.stock<0?'var(--red)':'inherit')+'">'+(p.stock!==null?p.stock:'?')+'</td><td>'+badge+'</td></tr>';
+    }).join('')+'</tbody></table></div></div>'+
+    '<div class="card"><div class="ctitle">📋 Todos los productos</div>'+
+    '<div class="fbar"><input type="text" class="srch" id="vw-srch" placeholder="Buscar producto..." oninput="renderVWTable()"><select class="fsel" id="vw-r" onchange="renderVWTable()"><option value="">Todos</option><option value="sin_stock">Sin stock</option><option value="critico">Crítico</option><option value="bajo">Bajo</option><option value="ok">OK</option><option value="multicap">Multicap</option></select></div>'+
+    '<div class="tscroll"><table class="tbl"><thead><tr><th>Producto</th>'+lbls.map(function(l){return '<th class="num">'+l+'</th>';}).join('')+'<th class="num">Total</th><th class="num">Uds.</th><th class="num">Stock</th><th>Riesgo</th></tr></thead><tbody id="vw-tbody"></tbody></table></div></div>';
+  setTimeout(function(){
+    dChart('c-vw-evol');
+    charts['c-vw-evol']=new Chart(el('c-vw-evol'),{type:'bar',data:{labels:lbls,datasets:[{data:MESES.map(function(m){return vw.resumen_meses[m]||0;}),backgroundColor:MESES.map(function(_,i){return['#2E86AB','#1E8449','#7B2D8B','#E8A020'][i]||'#888';})}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:fmt}}}}});
+    var top8=prods.slice(0,8);
+    dChart('c-vw-mix');
+    charts['c-vw-mix']=new Chart(el('c-vw-mix'),{type:'doughnut',data:{labels:top8.map(function(p){return p.producto.substring(0,25);}),datasets:[{data:top8.map(function(p){return p.importe_total;}),backgroundColor:['#2E86AB','#1E8449','#E8A020','#C0392B','#7B2D8B','#117A65','#D35400','#8E44AD']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10}}}}}});
+  },50);
+  renderVWTable();
+}
+function renderVWTable(){
+  var srch=(el('vw-srch')?.value||'').toLowerCase(),r=el('vw-r')?.value||'';
+  var prods=SD.vw.productos;
+  if(r)prods=prods.filter(function(p){return p.riesgo_stock===r;});
+  if(srch)prods=prods.filter(function(p){return p.producto.toLowerCase().includes(srch);});
+  var rBadge={'sin_stock':'<span class="badge br">🔴 Sin stock</span>','critico':'<span class="badge br">🔴 Crítico</span>','bajo':'<span class="badge bo">⚡ Bajo</span>','ok':'<span class="badge bg">✅ OK</span>','multicap':'<span class="badge bb">Multicap</span>','sin_dato':'<span class="badge by">?</span>'};
+  if(el('vw-tbody'))el('vw-tbody').innerHTML=prods.map(function(p){var bg=(p.riesgo_stock==='sin_stock'||p.riesgo_stock==='critico')?'background:#FFF5F5':p.riesgo_stock==='bajo'?'background:#FFF9F0':'';return '<tr style="'+bg+'"><td>'+p.producto+'</td>'+MESES.map(function(m){var v=p.imp_meses[m]||0;return '<td class="num">'+(v>0?fmt(v):'—')+'</td>';}).join('')+'<td class="num"><b>'+fmt(p.importe_total)+'</b></td><td class="num">'+p.cantidad_total+'</td><td class="num" style="color:'+(p.stock<0?'var(--red)':'inherit')+'">'+(p.stock!==null?p.stock:'?')+'</td><td>'+(rBadge[p.riesgo_stock]||'')+'</td></tr>';}).join('');}
+
+// ── FILTROS ───────────────────────────────────────────────────────────────────
+function buildGFiltros(){
+  var ml=SD.geo.marcas_list, fl=SD.geo.familias_list;
+  el('pane9').innerHTML=
+    '<div class="card"><div class="ctitle">🔍 Filtros Globales</div>'+
+    '<p style="font-size:.82rem;color:var(--text2);margin-bottom:16px">Seleccioná uno o más valores. Los resultados se muestran abajo.</p>'+
+    '<div class="g2"><div>'+
+      '<div style="font-weight:700;font-size:.83rem;margin-bottom:8px;color:var(--navy)">📅 Período</div>'+
+      MESES.map(function(m){return '<label class="ms-item"><input type="checkbox" value="'+m+'" onchange="applyGF()"> '+(MESES_L[m]||m)+'</label>';}).join('')+
+    '</div><div>'+
+      '<div style="font-weight:700;font-size:.83rem;margin-bottom:8px;color:var(--navy)">👥 Vendedor</div>'+
+      VENDEDORES.map(function(v){return '<label class="ms-item"><input type="checkbox" value="'+v+'" onchange="applyGF()"> '+v.split(' ')[0]+'</label>';}).join('')+
+    '</div></div>'+
+    '<div class="g2" style="margin-top:14px"><div>'+
+      '<div style="font-weight:700;font-size:.83rem;margin-bottom:8px;color:var(--navy)">🏷️ Marca</div>'+
+      ml.map(function(m){return '<label class="ms-item"><input type="checkbox" value="'+m+'" class="gf-marca" onchange="applyGF()"> '+m+'</label>';}).join('')+
+    '</div><div>'+
+      '<div style="font-weight:700;font-size:.83rem;margin-bottom:8px;color:var(--navy)">🏢 Segmento</div>'+
+      SEGS.map(function(s){return '<label class="ms-item"><input type="checkbox" value="'+s+'" class="gf-seg" onchange="applyGF()"> '+s+'</label>';}).join('')+
+    '</div></div>'+
+    '<div style="margin-top:16px;display:flex;gap:10px">'+
+      '<button class="lbtn" style="width:auto;padding:9px 20px" onclick="applyGF()">Aplicar</button>'+
+      '<button class="tbtn" style="padding:9px 20px;background:var(--border);color:var(--text)" onclick="resetGF()">Limpiar</button>'+
+    '</div></div>'+
+    '<div class="card" id="gf-results"><div class="empty"><div class="ico">☝️</div><p>Seleccioná filtros y hacé clic en Aplicar</p></div></div>';
+}
+function getGFChecked(cls){return Array.from(document.querySelectorAll('.'+cls+' input:checked')).map(function(c){return c.value;});}
+function applyGF(){
+  var fMeses   =Array.from(document.querySelectorAll('#pane9 input[type=checkbox]:checked')).filter(function(c){return MESES.includes(c.value);}).map(function(c){return c.value;});
+  var fVends   =Array.from(document.querySelectorAll('#pane9 input[type=checkbox]:checked')).filter(function(c){return VENDEDORES.includes(c.value);}).map(function(c){return c.value;});
+  var fMarcas  =Array.from(document.querySelectorAll('.gf-marca:checked')).map(function(c){return c.value;});
+  var fSegs    =Array.from(document.querySelectorAll('.gf-seg:checked')).map(function(c){return c.value;});
+  var txns=(SD.txn_summary||[]).filter(function(t){
+    if(fMeses.length  && !fMeses.includes(t.mes))     return false;
+    if(fVends.length  && !fVends.includes(t.vendedor)) return false;
+    if(fMarcas.length && !fMarcas.includes(t.marca))   return false;
+    if(fSegs.length   && !fSegs.includes(t.segmento))  return false;
+    return true;
+  });
+  var totF=txns.reduce(function(s,t){return s+t.importe;},0);
+  var byMes={},byVend={},byMarca={},byCli={};
+  txns.forEach(function(t){byMes[t.mes]=(byMes[t.mes]||0)+t.importe;byVend[t.vendedor]=(byVend[t.vendedor]||0)+t.importe;byMarca[t.marca]=(byMarca[t.marca]||0)+t.importe;byCli[t.cliente]=(byCli[t.cliente]||0)+t.importe;});
+  var mesSorted=Object.entries(byMes).sort(function(a,b){return a[0].localeCompare(b[0]);});
+  var vendSorted=Object.entries(byVend).sort(function(a,b){return b[1]-a[1];});
+  var marcSorted=Object.entries(byMarca).filter(function(e){return e[0]!=='Sin Marca';}).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
+  var cliSorted=Object.entries(byCli).sort(function(a,b){return b[1]-a[1];}).slice(0,15);
+  el('gf-results').innerHTML=
+    '<div class="kpi-grid">'+kpi('Total filtrado',fmt(totF),txns.length+' transacciones','var(--navy)')+kpi('Clientes',Object.keys(byCli).length+'','distintos','var(--abc)')+kpi('Marcas',Object.keys(byMarca).filter(function(m){return m!=='Sin Marca';}).length+'','distintas','var(--accent)')+'</div>'+
+    '<div class="g2">'+
+      '<div class="card"><div class="ctitle">📅 Por mes</div><div class="ch-sm"><canvas id="c-gf-mes"></canvas></div></div>'+
+      '<div class="card"><div class="ctitle">👥 Por vendedor</div><div class="ch-sm"><canvas id="c-gf-vend"></canvas></div></div>'+
+    '</div>'+
+    '<div class="g2">'+
+      '<div class="card"><div class="ctitle">🏷️ Top marcas</div><div class="tscroll"><table class="tbl"><thead><tr><th>Marca</th><th class="num">Importe</th></tr></thead><tbody>'+marcSorted.map(function(e){return '<tr><td>'+e[0]+'</td><td class="num">'+fmt(e[1])+'</td></tr>';}).join('')+'</tbody></table></div></div>'+
+      '<div class="card"><div class="ctitle">🏆 Top clientes</div><div class="tscroll"><table class="tbl"><thead><tr><th>Cliente</th><th class="num">Importe</th></tr></thead><tbody>'+cliSorted.map(function(e){return '<tr><td>'+e[0]+'</td><td class="num"><b>'+fmt(e[1])+'</b></td></tr>';}).join('')+'</tbody></table></div></div>'+
+    '</div>';
+  setTimeout(function(){
+    dChart('c-gf-mes');
+    charts['c-gf-mes']=new Chart(el('c-gf-mes'),{type:'bar',data:{labels:mesSorted.map(function(e){return (MESES_L[e[0]]||e[0]).substring(0,3);}),datasets:[{data:mesSorted.map(function(e){return e[1];}),backgroundColor:'#2E86AB'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:fmt}}}}});
+    dChart('c-gf-vend');
+    charts['c-gf-vend']=new Chart(el('c-gf-vend'),{type:'bar',data:{labels:vendSorted.map(function(e){return e[0].split(' ')[0];}),datasets:[{data:vendSorted.map(function(e){return e[1];}),backgroundColor:vendSorted.map(function(e){return VCOLORS[e[0]]||'#888';})}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:fmt}}}}});
+  },50);
+}
+function resetGF(){document.querySelectorAll('#pane9 input[type=checkbox]').forEach(function(c){c.checked=false;});el('gf-results').innerHTML='<div class="empty"><div class="ico">☝️</div><p>Seleccioná filtros y hacé clic en Aplicar</p></div>';}
 
 // ════════════════════════════════════════════════════════════════════════════
 // VENDEDOR
 // ════════════════════════════════════════════════════════════════════════════
-
-// ════════════════════════════════════════════════════════════════════════════
-// VENDEDOR — nuevo home con tablero visual
-// ════════════════════════════════════════════════════════════════════════════
-function buildVendedor(v) {
+function buildVendedor(v){
   makeTabs(['🏠 Tablero','📞 Llamados','💡 Oportunidades','⚠️ Riesgo','🏆 Ranking','💰 Comisiones']);
-  buildVTablero(v);
-  buildVLlamados(v);
-  buildVOportunidades(v);
-  buildVRiesgo(v);
-  buildVRanking(v);
-  buildVComisiones(v);
+  buildVTablero(v);buildVLlamados(v);buildVOportunidades(v);buildVRiesgo(v);buildVRanking(v);buildVComisiones(v);
 }
 
-// ── TABLERO (nuevo home) ──────────────────────────────────────────────────────
-function buildVTablero(v) {
-  var vvm  = SD.venta_vend_mes;
-  var det  = SD.vendedor_detalle[v];
-  var ultimo = MESES[MESES.length-1];
-  var penult = MESES[MESES.length-2];
-
-  var imp_meses = MESES.map(function(m){ return vvm[v][m]||0; });
-  var total     = imp_meses.reduce(function(s,x){return s+x;},0);
-  var m_ult     = imp_meses[MESES.length-1];
-  var m_pen     = imp_meses[MESES.length-2];
-  var cm_ult    = Object.keys(det.clientes_mes[ultimo]||{}).length;
-
-  // Filters state
-  var vFilters = {meses:[], cliente:'', marca:''};
-
-  // Build top clients by month
-  var topCli = {};
-  MESES.forEach(function(m){
-    var clis = det.clientes_mes[m] || {};
-    topCli[m] = Object.entries(clis).filter(function(e){return e[1]>0;}).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
-  });
-
-  // Top clients overall
-  var cliTotals = {};
-  MESES.forEach(function(m){
-    Object.entries(det.clientes_mes[m]||{}).forEach(function(e){
-      cliTotals[e[0]] = (cliTotals[e[0]]||0) + e[1];
-    });
-  });
-  var topCliAll = Object.entries(cliTotals).filter(function(e){return e[1]>0;}).sort(function(a,b){return b[1]-a[1];});
-
-  // Top marcas overall
-  var marcaTotals = {};
-  MESES.forEach(function(m){
-    Object.entries(det.marcas_mes[m]||{}).forEach(function(e){
-      marcaTotals[e[0]] = (marcaTotals[e[0]]||0) + e[1];
-    });
-  });
-  var topMarcas = Object.entries(marcaTotals).filter(function(e){return e[1]>0;}).sort(function(a,b){return b[1]-a[1];});
-
-  // Top familias overall
-  var famTotals = {};
-  MESES.forEach(function(m){
-    Object.entries(det.familias_mes[m]||{}).forEach(function(e){
-      famTotals[e[0]] = (famTotals[e[0]]||0) + e[1];
-    });
-  });
-  var topFams = Object.entries(famTotals).filter(function(e){return e[1]>0;}).sort(function(a,b){return b[1]-a[1];});
-
-  var col = VCOLORS[v]||'#2E86AB';
-  var ultNombre = MESES_L[ultimo]||ultimo;
-
-  el('pane0').innerHTML =
-    // Filters
-    '<div class="card" style="margin-bottom:16px">'+
-      '<div class="ctitle" style="margin-bottom:12px">🔍 Filtros</div>'+
-      '<div class="fbar">'+
-        '<span class="flbl">Período:</span>'+
-        '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
-          MESES.map(function(m){ return '<label class="ms-item"><input type="checkbox" value="'+m+'" onchange="applyVFilters(\''+v+'\')"> '+(MESES_L[m]||m)+'</label>'; }).join('')+
-        '</div>'+
-        '<span class="flbl">Cliente:</span>'+
-        '<select class="fsel" id="vf-cli" onchange="applyVFilters(\''+v+'\')">'+
-          '<option value="">Todos</option>'+
-          topCliAll.slice(0,30).map(function(e){return '<option>'+e[0]+'</option>';}).join('')+
-        '</select>'+
-        '<span class="flbl">Marca:</span>'+
-        '<select class="fsel" id="vf-marca" onchange="applyVFilters(\''+v+'\')">'+
-          '<option value="">Todas</option>'+
-          topMarcas.slice(0,20).map(function(e){return '<option>'+e[0]+'</option>';}).join('')+
-        '</select>'+
-        '<span class="flbl">Ver en:</span>'+
-        '<select class="fsel" id="vf-metrica" onchange="applyVFilters(\''+v+'\')">'+
-          '<option value="importe">$ Importe</option>'+
-          '<option value="cantidad">Unidades</option>'+
-        '</select>'+
-        '<button class="tbtn" style="padding:7px 16px;background:var(--border);color:var(--text)" onclick="resetVFilters(\''+v+'\')">Limpiar</button>'+
-      '</div>'+
-    '</div>'+
-    // KPIs
+// ── TABLERO ───────────────────────────────────────────────────────────────────
+function buildVTablero(v){
+  var vvm=SD.venta_vend_mes, det=SD.vendedor_detalle[v];
+  var ultimo=MESES[MESES.length-1], penult=MESES[MESES.length-2];
+  var imp_meses=MESES.map(function(m){return vvm[v][m]||0;});
+  var total=imp_meses.reduce(function(s,x){return s+x;},0);
+  var m_ult=imp_meses[MESES.length-1], m_pen=imp_meses[MESES.length-2];
+  var cm=Object.keys(det.clientes_mes[ultimo]||{}).length;
+  var col=VCOLORS[v]||'#2E86AB';
+  var ultNom=MESES_L[ultimo]||ultimo;
+  // Aggregations
+  var cliTotals={};MESES.forEach(function(m){Object.entries(det.clientes_mes[m]||{}).forEach(function(e){cliTotals[e[0]]=(cliTotals[e[0]]||0)+e[1];});});
+  var topCliAll=Object.entries(cliTotals).filter(function(e){return e[1]>0;}).sort(function(a,b){return b[1]-a[1];});
+  var marcaTotals={};MESES.forEach(function(m){Object.entries(det.marcas_mes[m]||{}).forEach(function(e){marcaTotals[e[0]]=(marcaTotals[e[0]]||0)+e[1];});});
+  var topMarcas=Object.entries(marcaTotals).filter(function(e){return e[1]>0;}).sort(function(a,b){return b[1]-a[1];});
+  var famTotals={};MESES.forEach(function(m){Object.entries(det.familias_mes[m]||{}).forEach(function(e){famTotals[e[0]]=(famTotals[e[0]]||0)+e[1];});});
+  var topFams=Object.entries(famTotals).filter(function(e){return e[1]>0;}).sort(function(a,b){return b[1]-a[1];});
+  el('pane0').innerHTML=
+    '<div class="card" style="margin-bottom:14px"><div class="ctitle" style="margin-bottom:10px">🔍 Filtros</div>'+
+    '<div class="fbar">'+
+      '<span class="flbl">Período:</span>'+MESES.map(function(m){return '<label class="ms-item"><input type="checkbox" class="vf-mes" value="'+m+'" onchange="applyVF(\''+v+'\')"> '+(MESES_L[m]||m)+'</label>';}).join('')+
+      '<span class="flbl">Cliente:</span><select class="fsel" id="vf-cli" onchange="applyVF(\''+v+'\')"><option value="">Todos</option>'+topCliAll.slice(0,30).map(function(e){return '<option>'+e[0]+'</option>';}).join('')+'</select>'+
+      '<span class="flbl">Marca:</span><select class="fsel" id="vf-marca" onchange="applyVF(\''+v+'\')"><option value="">Todas</option>'+topMarcas.slice(0,20).map(function(e){return '<option>'+e[0]+'</option>';}).join('')+'</select>'+
+      '<span class="flbl">Ver en:</span><select class="fsel" id="vf-met" onchange="applyVF(\''+v+'\')"><option value="importe">$ Importe</option><option value="cantidad">Unidades</option></select>'+
+      '<button class="tbtn" style="padding:6px 14px;background:var(--border);color:var(--text)" onclick="resetVF(\''+v+'\')">Limpiar</button>'+
+    '</div></div>'+
     '<div class="kpi-grid" id="v-kpis">'+
-      kpi('Total período', fmt(total), MESES_L[MESES[0]]+' a '+ultNombre, 'var(--navy)')+
-      kpi(ultNombre, fmt(m_ult), 'vs '+(MESES_L[penult]||penult)+': '+varBadge(m_ult,m_pen), col)+
-      kpi('Clientes activos', cm_ult+'', 'en '+ultNombre, 'var(--green)')+
-      kpi('Clientes en riesgo', det.clientes_caidos.length+'', 'sin compras en '+ultNombre, 'var(--red)')+
+      kpi('Total período',fmt(total),(MESES_L[MESES[0]]||MESES[0])+' a '+ultNom,'var(--navy)')+
+      imp_meses.map(function(val,i){var prev=i>0?imp_meses[i-1]:0;return kpi(MESES_L[MESES[i]]||MESES[i],fmt(val),i>0?varBadge(val,prev):'',col);}).join('')+
+      kpi('Clientes activos '+ultNom,cm+'','','var(--green)')+
     '</div>'+
-    // Charts row 1
     '<div class="g2">'+
       '<div class="card"><div class="ctitle">📈 Tu evolución</div><div class="ch"><canvas id="c-v-evol"></canvas></div></div>'+
-      '<div class="card"><div class="ctitle">🏆 Ranking de clientes</div><div class="ch"><canvas id="c-v-cli"></canvas></div></div>'+
+      '<div class="card"><div class="ctitle">🏆 Top clientes</div><div class="ch"><canvas id="c-v-cli"></canvas></div></div>'+
     '</div>'+
-    // Charts row 2
     '<div class="g2">'+
-      '<div class="card"><div class="ctitle">🏷️ Ranking de marcas</div><div class="ch"><canvas id="c-v-marca"></canvas></div></div>'+
-      '<div class="card"><div class="ctitle">📦 Ranking de familias</div><div class="ch"><canvas id="c-v-fam"></canvas></div></div>'+
+      '<div class="card"><div class="ctitle">🏷️ Top marcas</div><div class="ch"><canvas id="c-v-marca"></canvas></div></div>'+
+      '<div class="card"><div class="ctitle">📦 Top familias</div><div class="ch"><canvas id="c-v-fam"></canvas></div></div>'+
     '</div>';
-
-  // Store for filter updates
-  window._vTableroData = {v:v, topCliAll:topCliAll, topMarcas:topMarcas, topFams:topFams, imp_meses:imp_meses, col:col};
-  renderVCharts(v, topCliAll, topMarcas, topFams, imp_meses, col, 'importe');
+  window._vData={v:v,topCliAll:topCliAll,topMarcas:topMarcas,topFams:topFams,imp_meses:imp_meses,col:col};
+  renderVCharts(v,topCliAll,topMarcas,topFams,imp_meses,col,'importe',MESES);
 }
-
-function getMesesFiltrados() {
-  var checks = document.querySelectorAll('#pane0 input[type=checkbox]:checked');
-  return checks.length > 0 ? Array.from(checks).map(function(c){return c.value;}) : MESES;
+function applyVF(v){
+  var mesesF=Array.from(document.querySelectorAll('.vf-mes:checked')).map(function(c){return c.value;});
+  if(!mesesF.length)mesesF=MESES;
+  var cliF=el('vf-cli')?.value||'', marcaF=el('vf-marca')?.value||'', met=el('vf-met')?.value||'importe';
+  var txns=(SD.txn_summary||[]).filter(function(t){return t.vendedor===v&&mesesF.includes(t.mes)&&(!cliF||t.cliente===cliF)&&(!marcaF||t.marca===marcaF);});
+  var getV=function(t){return met==='cantidad'?t.cantidad:t.importe;};
+  var totF=txns.reduce(function(s,t){return s+getV(t);},0);
+  var byMes={},byCli={},byMarca={},byFam={};
+  mesesF.forEach(function(m){byMes[m]=0;});
+  txns.forEach(function(t){byMes[t.mes]=(byMes[t.mes]||0)+getV(t);byCli[t.cliente]=(byCli[t.cliente]||0)+getV(t);byMarca[t.marca]=(byMarca[t.marca]||0)+getV(t);byFam[t.familia]=(byFam[t.familia]||0)+getV(t);});
+  var col=VCOLORS[v]||'#2E86AB';
+  if(el('v-kpis'))el('v-kpis').innerHTML=kpi('Total filtrado',met==='cantidad'?Math.round(totF)+' uds':fmt(totF),mesesF.map(function(m){return (MESES_L[m]||m).substring(0,3);}).join(', '),'var(--navy)')+kpi('Clientes',Object.keys(byCli).length+'','','var(--green)')+kpi('Marcas',Object.keys(byMarca).filter(function(m){return m!=='Sin Marca';}).size||Object.keys(byMarca).filter(function(m){return m!=='Sin Marca';}).length+'','','var(--abc)');
+  var impM=mesesF.map(function(m){return byMes[m]||0;});
+  var topC=Object.entries(byCli).filter(function(e){return e[1]>0;}).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
+  var topM=Object.entries(byMarca).filter(function(e){return e[1]>0&&e[0]!=='Sin Marca';}).sort(function(a,b){return b[1]-a[1];});
+  var topF=Object.entries(byFam).filter(function(e){return e[1]>0&&e[0]!=='Sin Familia';}).sort(function(a,b){return b[1]-a[1];});
+  renderVCharts(v,topC,topM,topF,impM,col,met,mesesF);
 }
-
-function applyVFilters(v) {
-  var det     = SD.vendedor_detalle[v];
-  var mesesF  = getMesesFiltrados();
-  var cliF    = el('vf-cli')    ? el('vf-cli').value    : '';
-  var marcaF  = el('vf-marca')  ? el('vf-marca').value  : '';
-  var metrica = el('vf-metrica')? el('vf-metrica').value : 'importe';
-  var col     = VCOLORS[v]||'#2E86AB';
-
-  // Filter transactions
-  var txns = (SD.txn_summary||[]).filter(function(t){
-    if (t.vendedor !== v) return false;
-    if (!mesesF.includes(t.mes)) return false;
-    if (cliF   && t.cliente !== cliF)  return false;
-    if (marcaF && t.marca   !== marcaF) return false;
-    return true;
-  });
-
-  var getVal = function(t){ return metrica==='cantidad' ? t.cantidad : t.importe; };
-
-  // KPIs
-  var totalF = txns.reduce(function(s,t){return s+getVal(t);},0);
-  var cliSet = new Set(txns.map(function(t){return t.cliente;}));
-  var ultNombre = MESES_L[MESES[MESES.length-1]]||'';
-  var kpiEl = el('v-kpis');
-  if (kpiEl) kpiEl.innerHTML =
-    kpi('Total filtrado', metrica==='cantidad'?Math.round(totalF)+' uds':fmt(totalF), mesesF.map(function(m){return MESES_L[m]||m;}).join(', '), 'var(--navy)')+
-    kpi('Clientes activos', cliSet.size+'', 'en selección', 'var(--green)')+
-    kpi('Marcas vendidas', new Set(txns.map(function(t){return t.marca;})).size+'', '', 'var(--abc)')+
-    kpi('Familias vendidas', new Set(txns.map(function(t){return t.familia;})).size+'', '', 'var(--accent)');
-
-  // Rebuild aggregations
-  var byMes = {}; mesesF.forEach(function(m){byMes[m]=0;});
-  var byCli = {}, byMarca = {}, byFam = {};
-  txns.forEach(function(t){
-    byMes[t.mes]   = (byMes[t.mes]||0)   + getVal(t);
-    byCli[t.cliente]= (byCli[t.cliente]||0) + getVal(t);
-    byMarca[t.marca]= (byMarca[t.marca]||0) + getVal(t);
-    byFam[t.familia]= (byFam[t.familia]||0) + getVal(t);
-  });
-
-  var imp_m  = mesesF.map(function(m){return byMes[m]||0;});
-  var topCli  = Object.entries(byCli).filter(function(e){return e[1]>0;}).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
-  var topM    = Object.entries(byMarca).filter(function(e){return e[1]>0&&e[0]!=='Sin Marca';}).sort(function(a,b){return b[1]-a[1];});
-  var topF    = Object.entries(byFam).filter(function(e){return e[1]>0&&e[0]!=='Sin Familia';}).sort(function(a,b){return b[1]-a[1];});
-
-  renderVCharts(v, topCli, topM, topF, imp_m, col, metrica, mesesF);
-}
-
-function resetVFilters(v) {
-  document.querySelectorAll('#pane0 input[type=checkbox]').forEach(function(c){c.checked=false;});
-  if(el('vf-cli'))    el('vf-cli').value='';
-  if(el('vf-marca'))  el('vf-marca').value='';
-  if(el('vf-metrica'))el('vf-metrica').value='importe';
-  buildVTablero(v);
-}
-
-function renderVCharts(v, topCli, topMarcas, topFams, imp_meses, col, metrica, mesesOverride) {
-  var mesesLabels = (mesesOverride||MESES).map(function(m){return (MESES_L[m]||m).substring(0,3);});
-  var yFmt = metrica==='cantidad' ? function(x){return Math.round(x)+'u';} : fmt;
-  var COLS = ['#2E86AB','#E8A020','#1E8449','#C0392B','#7B2D8B','#117A65','#D35400','#8E44AD','#1A5276','#784212'];
-
-  // Evolution
+function resetVF(v){document.querySelectorAll('.vf-mes').forEach(function(c){c.checked=false;});if(el('vf-cli'))el('vf-cli').value='';if(el('vf-marca'))el('vf-marca').value='';if(el('vf-met'))el('vf-met').value='importe';buildVTablero(v);}
+function renderVCharts(v,topCli,topMarcas,topFams,imp_meses,col,met,mesesOverride){
+  var lbls=(mesesOverride||MESES).map(function(m){return (MESES_L[m]||m).substring(0,3);});
+  var yFmt=met==='cantidad'?function(x){return Math.round(x)+'u';}:fmt;
+  var COLS=['#2E86AB','#E8A020','#1E8449','#C0392B','#7B2D8B','#117A65','#D35400','#8E44AD','#1A5276','#784212'];
   dChart('c-v-evol');
-  charts['c-v-evol'] = new Chart(el('c-v-evol'),{type:'bar',
-    data:{labels:mesesLabels, datasets:[{data:imp_meses,backgroundColor:imp_meses.map(function(){return col;})}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:yFmt}}}}
-  });
-
-  // Top clients (horizontal bar)
-  dChart('c-v-cli');
-  if (topCli.length>0) charts['c-v-cli'] = new Chart(el('c-v-cli'),{type:'bar',
-    data:{labels:topCli.map(function(e){return e[0].length>20?e[0].substring(0,20)+'…':e[0];}),
-      datasets:[{data:topCli.map(function(e){return e[1];}),backgroundColor:COLS}]},
-    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:yFmt}}}}
-  });
-
-  // Top marcas (horizontal bar)
-  dChart('c-v-marca');
-  if (topMarcas.length>0) charts['c-v-marca'] = new Chart(el('c-v-marca'),{type:'bar',
-    data:{labels:topMarcas.slice(0,10).map(function(e){return e[0];}),
-      datasets:[{data:topMarcas.slice(0,10).map(function(e){return e[1];}),backgroundColor:topMarcas.slice(0,10).map(function(e){return MCOLORS[e[0]]||'#888';})}]},
-    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:yFmt}}}}
-  });
-
-  // Top familias (doughnut)
-  dChart('c-v-fam');
-  if (topFams.length>0) charts['c-v-fam'] = new Chart(el('c-v-fam'),{type:'doughnut',
-    data:{labels:topFams.slice(0,10).map(function(e){return e[0];}),
-      datasets:[{data:topFams.slice(0,10).map(function(e){return e[1];}),backgroundColor:COLS}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:12}}}}
-  });
+  charts['c-v-evol']=new Chart(el('c-v-evol'),{type:'bar',data:{labels:lbls,datasets:[{data:imp_meses,backgroundColor:imp_meses.map(function(){return col;})}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:yFmt}}}}});
+  if(topCli.length){dChart('c-v-cli');charts['c-v-cli']=new Chart(el('c-v-cli'),{type:'bar',data:{labels:topCli.map(function(e){return e[0].length>18?e[0].substring(0,18)+'…':e[0];}),datasets:[{data:topCli.map(function(e){return e[1];}),backgroundColor:COLS}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:yFmt}}}}});}
+  if(topMarcas.length){dChart('c-v-marca');charts['c-v-marca']=new Chart(el('c-v-marca'),{type:'bar',data:{labels:topMarcas.slice(0,10).map(function(e){return e[0];}),datasets:[{data:topMarcas.slice(0,10).map(function(e){return e[1];}),backgroundColor:topMarcas.slice(0,10).map(function(e){return MCOLORS[e[0]]||'#888';})}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:yFmt}}}}});}
+  if(topFams.length){dChart('c-v-fam');charts['c-v-fam']=new Chart(el('c-v-fam'),{type:'doughnut',data:{labels:topFams.slice(0,10).map(function(e){return e[0];}),datasets:[{data:topFams.slice(0,10).map(function(e){return e[1];}),backgroundColor:COLS}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:12}}}}});}
 }
 
-// ── LLAMADOS (ex Mi Semana) ────────────────────────────────────────────────────
-function buildVLlamados(v) {
-  var det = SD.vendedor_detalle[v];
-  var vvm = SD.venta_vend_mes;
-  var mar = vvm[v][MESES[MESES.length-1]]||0;
-  var pen = vvm[v][MESES[MESES.length-2]]||0;
-  var caidos  = det.clientes_caidos  || [];
-  var riesgo  = det.clientes_riesgo  || [];
-  var ultNom  = MESES_L[MESES[MESES.length-1]]||'';
-  var penNom  = MESES_L[MESES[MESES.length-2]]||'';
+// ── LLAMADOS ──────────────────────────────────────────────────────────────────
+function buildVLlamados(v){
+  var det=SD.vendedor_detalle[v], vvm=SD.venta_vend_mes;
+  var mar=vvm[v][MESES[MESES.length-1]]||0, pen=vvm[v][MESES[MESES.length-2]]||0;
+  var caidos=det.clientes_caidos||[], riesgo=det.clientes_riesgo||[];
+  var ultNom=MESES_L[MESES[MESES.length-1]]||'', penNom=MESES_L[MESES[MESES.length-2]]||'';
+  el('pane1').innerHTML=
+    '<div class="kpi-grid">'+kpi('Tus ventas — '+ultNom,fmt(mar),'vs '+penNom+': '+varBadge(mar,pen),'var(--navy)')+kpi('Para llamar',caidos.length+'','sin compras en '+ultNom,'var(--red)')+kpi('En riesgo',riesgo.length+'','bajaron >40%','var(--orange)')+'</div>'+
+    '<div class="card"><div class="ctitle">📞 Sin compras en '+ultNom+'</div>'+
+    (caidos.length===0?'<div class="empty"><div class="ico">✅</div><p>¡Todos tus clientes compraron en '+ultNom+'!</p></div>':
+    '<div class="tscroll"><table class="tbl"><thead><tr><th>Cliente</th><th>Segmento</th><th>Último mes</th></tr></thead><tbody>'+
+    caidos.map(function(c){return '<tr><td><b>'+c.cliente+'</b></td><td><span class="badge bb">'+c.segmento+'</span></td><td>'+(MESES_L[c.ultimo_mes]||c.ultimo_mes)+'</td></tr>';}).join('')+'</tbody></table></div>')+'</div>'+
+    (riesgo.length?'<div class="card"><div class="ctitle">📉 Posible reemplazo de proveedor</div>'+riesgo.map(function(c){return '<div class="ai warning"><div><div class="ai-name">'+c.cliente+'</div><div class="ai-det">Caída '+Math.abs(c.caida_pct)+'% vs su pico</div></div><div class="ai-amt" style="color:var(--red)">▼ '+Math.abs(c.caida_pct)+'%</div></div>';}).join('')+'</div>':'');
+}
 
-  el('pane1').innerHTML =
+// ── OPORTUNIDADES ─────────────────────────────────────────────────────────────
+function buildVOportunidades(v){
+  var det=SD.vendedor_detalle[v];
+  var oppF=det.oportunidades_familias||{}, oppM=det.oportunidades_marcas||{};
+  var clis=Object.keys(Object.assign({},oppF,oppM)).sort();
+  el('pane2').innerHTML=
+    '<p style="font-size:.85rem;color:var(--text2);margin-bottom:16px">Familias y marcas que todavía no vendés a clientes que ya tenés.</p>'+
+    '<div class="fbar"><input type="text" class="srch" id="osrch" placeholder="Buscar cliente..." oninput="renderOpps(\''+v+'\')">'+
+    '<select class="fsel" id="otype" onchange="renderOpps(\''+v+'\')"><option value="ambos">Familias + Marcas</option><option value="familias">Solo Familias</option><option value="marcas">Solo Marcas</option></select></div>'+
+    '<div id="opp-cont"></div>';
+  window._oppF=oppF;window._oppM=oppM;window._oppClis=clis;
+  renderOpps(v);
+}
+function renderOpps(v){
+  var srch=(el('osrch')?.value||'').toLowerCase(), type=el('otype')?.value||'ambos';
+  var clis=(window._oppClis||[]).filter(function(c){return c.toLowerCase().includes(srch);});
+  var html=clis.slice(0,40).map(function(c){
+    var fams=type!=='marcas'?(window._oppF[c]||[]):[];
+    var marcas=type!=='familias'?(window._oppM[c]||[]):[];
+    if(!fams.length&&!marcas.length)return '';
+    return '<div class="opp-card"><div class="opp-cname">'+c+'</div><div class="opp-tags">'+fams.map(function(f){return '<span class="opp-tag opp-f">📦 '+f+'</span>';}).join('')+marcas.map(function(m){return '<span class="opp-tag opp-m">🏷️ '+m+'</span>';}).join('')+'</div></div>';
+  }).join('');
+  if(el('opp-cont'))el('opp-cont').innerHTML=html||'<div class="empty"><div class="ico">🔍</div><p>Sin resultados</p></div>';
+}
+
+// ── RIESGO ────────────────────────────────────────────────────────────────────
+function buildVRiesgo(v){
+  var det=SD.vendedor_detalle[v], caidos=det.clientes_caidos||[], riesgo=det.clientes_riesgo||[];
+  el('pane3').innerHTML=
+    '<div class="card"><div class="ctitle">🔴 Sin compras en '+( MESES_L[MESES[MESES.length-1]]||'')+'</div>'+
+    (caidos.length===0?'<div class="empty"><div class="ico">✅</div><p>Todos tus clientes compraron</p></div>':
+    '<div class="tscroll"><table class="tbl"><thead><tr><th>Cliente</th><th>Segmento</th><th class="num">Historial</th><th>Último mes</th></tr></thead><tbody>'+
+    caidos.map(function(c){return '<tr><td><b>'+c.cliente+'</b></td><td><span class="badge bb">'+c.segmento+'</span></td><td class="num">'+fmtFull(c.total_hist)+'</td><td>'+(MESES_L[c.ultimo_mes]||c.ultimo_mes)+'</td></tr>';}).join('')+'</tbody></table></div>')+'</div>'+
+    '<div class="card"><div class="ctitle">📉 Posible reemplazo de proveedor</div>'+
+    (riesgo.length===0?'<div class="empty"><div class="ico">✅</div><p>Sin caídas importantes</p></div>':
+    '<div class="tscroll"><table class="tbl"><thead><tr><th>Cliente</th><th>Segmento</th><th class="num">Pico</th><th class="num">Último mes</th><th>Caída</th></tr></thead><tbody>'+
+    riesgo.map(function(c){return '<tr><td><b>'+c.cliente+'</b></td><td><span class="badge bb">'+c.segmento+'</span></td><td class="num">'+fmtFull(c.mejor_mes)+'</td><td class="num">'+fmtFull(c.marzo)+'</td><td><span class="badge br">▼ '+Math.abs(c.caida_pct)+'%</span></td></tr>';}).join('')+'</tbody></table></div>')+'</div>';
+}
+
+// ── RANKING ───────────────────────────────────────────────────────────────────
+function buildVRanking(v){
+  var vvm=SD.venta_vend_mes;
+  var sorted=VENDEDORES.slice().sort(function(a,b){return MESES.reduce(function(s,m){return s+(vvm[b][m]||0);},0)-MESES.reduce(function(s,m){return s+(vvm[a][m]||0);},0);});
+  var myPos=sorted.indexOf(v)+1;
+  var myTot=MESES.reduce(function(s,m){return s+(vvm[v][m]||0);},0);
+  var maxT=MESES.reduce(function(s,m){return s+(vvm[sorted[0]][m]||0);},0);
+  var above=sorted[myPos-2];
+  var gap=above?MESES.reduce(function(s,m){return s+(vvm[above][m]||0);},0)-myTot:0;
+  var pc=['gold','silver','bronze','rnorm','rnorm','rnorm'];
+  var myPct=Math.round(myTot/maxT*100);
+  el('pane4').innerHTML=
     '<div class="kpi-grid">'+
-      kpi('Tus ventas — '+ultNom, fmt(mar), 'vs '+penNom+': '+varBadge(mar,pen), 'var(--navy)')+
-      kpi('Para llamar', caidos.length+'', 'sin compras en '+ultNom, 'var(--red)')+
-      kpi('En riesgo', riesgo.length+'', 'bajaron >40% vs su pico', 'var(--orange)')+
+      kpi('Tu posición',myPos+'° de '+VENDEDORES.length,'Ranking período','var(--accent)')+
+      kpi('% del líder',myPct+'%','tu performance relativa','var(--navy)')+
+      (myPos>1?kpi('Para subir al '+(myPos-1)+'°',fmt(gap),'vs '+above.split(' ')[0],'var(--orange)'):kpi('Posición','🥇 Líder','¡Vas primero!','var(--green)'))+
     '</div>'+
-    '<div class="card"><div class="ctitle">📞 Lista de llamados — sin compras en '+ultNom+'</div>'+
-    (caidos.length===0
-      ? '<div class="empty"><div class="ico">✅</div><p>¡Todos tus clientes compraron en '+ultNom+'!</p></div>'
-      : '<div class="tscroll"><table class="tbl"><thead><tr><th>Cliente</th><th>Segmento</th><th>Último mes activo</th></tr></thead><tbody>'+
-        caidos.map(function(c){
-          return '<tr><td><b>'+c.cliente+'</b></td>'+
-            '<td><span class="badge bb">'+c.segmento+'</span></td>'+
-            '<td>'+(MESES_L[c.ultimo_mes]||c.ultimo_mes)+'</td></tr>';
-        }).join('')+'</tbody></table></div>'
-    )+'</div>'+
-    (riesgo.length>0
-      ? '<div class="card"><div class="ctitle">📉 Posible reemplazo de proveedor</div>'+
-        riesgo.map(function(c){
-          return '<div class="ai warning">'+
-            '<div><div class="ai-name">'+c.cliente+'</div>'+
-            '<div class="ai-det">Caída: '+Math.abs(c.caida_pct)+'% vs pico</div></div>'+
-            '<div class="ai-amt" style="color:var(--red)">▼ '+Math.abs(c.caida_pct)+'%</div></div>';
-        }).join('')+'</div>' : '');
+    '<div class="card"><div class="ctitle">🏆 Ranking del equipo — % del líder</div>'+
+    sorted.map(function(sv,i){
+      var t=MESES.reduce(function(s,m){return s+(vvm[sv][m]||0);},0);
+      var pct=Math.round(t/maxT*100);
+      var isMe=sv===v;
+      var ncli=Object.keys(SD.vendedor_detalle[sv].clientes_mes[MESES[MESES.length-1]]||{}).length;
+      return '<div class="ri" style="'+(isMe?'background:#FEF9E7;border-radius:8px;padding:10px':'')+'">'+
+        '<div class="rpos '+(isMe?'rme':pc[i])+'">'+(i+1)+'</div>'+
+        '<div class="rname">'+sv.split(' ')[0]+(isMe?' <b style="color:var(--accent)">(vos)</b>':'')+
+          '<div class="rsub">'+ncli+' clientes · '+pct+'%</div></div>'+
+        '<div class="rbar"><div class="rbg"><div class="rbar-fill" style="width:'+pct+'%;background:'+(isMe?'var(--accent)':VCOLORS[sv]||'#888')+'"></div></div></div>'+
+        '<div class="ramt" style="color:'+(isMe?'var(--accent)':VCOLORS[sv]||'#888')+'">'+pct+'%</div></div>';
+    }).join('')+'</div>'+
+    '<div class="g2">'+
+      '<div class="card"><div class="ctitle">📊 Tu evolución vs el equipo</div><div class="ch"><canvas id="c-rk-evol"></canvas></div></div>'+
+      '<div class="card"><div class="ctitle">📅 Comparativa mensual</div><div class="ch"><canvas id="c-rk-mes"></canvas></div></div>'+
+    '</div>';
+  var lbls=MESES.map(function(m){return (MESES_L[m]||m).substring(0,3);});
+  setTimeout(function(){
+    dChart('c-rk-evol');
+    charts['c-rk-evol']=new Chart(el('c-rk-evol'),{type:'line',data:{labels:lbls,datasets:sorted.map(function(sv){return{label:sv.split(' ')[0]+(sv===v?' (vos)':''),data:MESES.map(function(m){return vvm[sv][m]||0;}),borderColor:sv===v?'#E8A020':VCOLORS[sv]||'#ccc',borderWidth:sv===v?3:1.5,backgroundColor:'transparent',tension:.3,pointRadius:sv===v?6:3};})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{ticks:{callback:fmt}}}}});
+    dChart('c-rk-mes');
+    charts['c-rk-mes']=new Chart(el('c-rk-mes'),{type:'bar',data:{labels:lbls,datasets:sorted.map(function(sv){return{label:sv.split(' ')[0],data:MESES.map(function(m){return vvm[sv][m]||0;}),backgroundColor:VCOLORS[sv]||'#888'};})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{x:{stacked:true},y:{stacked:true,ticks:{callback:fmt}}}}});
+  },50);
 }
 
 // ── COMISIONES ────────────────────────────────────────────────────────────────
-function buildVComisiones(v) {
-  var com = SD.comisiones;
-  if (!com) {
-    el('pane5').innerHTML = '<div class="empty"><div class="ico">—</div><p>Sin datos de comisiones</p></div>';
-    return;
-  }
-  var porMes   = com.por_mes[v]   || {};
-  var totales  = com.totales[v]   || {};
-  var porFam   = com.por_familia[v] || {};
-  var porCli   = com.por_cliente[v] || {};
-  var mesesCom = com.meses || [];
-  var ML_com   = com.meses_label  || {};
-  var col      = VCOLORS[v]||'#2E86AB';
-
-  var imp_meses = mesesCom.map(function(m){return porMes[m]||0;});
-  var total_com = totales.comision_total || 0;
-  var pct_prom  = totales.pct_promedio  || 0;
-
-  var topFams = Object.entries(porFam).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
-  var topClis = Object.entries(porCli).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
-  var COLS = ['#2E86AB','#E8A020','#1E8449','#C0392B','#7B2D8B','#117A65','#D35400','#8E44AD','#1A5276','#784212'];
-
-  el('pane5').innerHTML =
+function buildVComisiones(v){
+  var com=SD.comisiones;
+  if(!com){el('pane5').innerHTML='<div class="empty"><div class="ico">—</div><p>Sin datos de comisiones</p></div>';return;}
+  var pm=com.por_mes[v]||{}, tot=com.totales[v]||{}, pf=com.por_familia[v]||{}, pc_cli=com.por_cliente[v]||{};
+  var mc=com.meses||[], ML_c=com.meses_label||{};
+  var col=VCOLORS[v]||'#2E86AB';
+  var impM=mc.map(function(m){return pm[m]||0;});
+  var topF=Object.entries(pf).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
+  var topC=Object.entries(pc_cli).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
+  var COLS=['#2E86AB','#E8A020','#1E8449','#C0392B','#7B2D8B','#117A65','#D35400','#8E44AD','#1A5276','#784212'];
+  el('pane5').innerHTML=
     '<div class="kpi-grid">'+
-      kpi('Comisión Total', fmt(total_com), 'Acumulada Ene-Abr', 'var(--green)')+
-      kpi('% Promedio', pct_prom+'%', 'Tasa de comisión promedio', 'var(--navy)')+
-      kpi('Cobrado total', fmt(totales.cobrado_total||0), 'base para comisión', 'var(--abc)')+
-      kpi('Operaciones', (totales.n_operaciones||0)+'', 'cobros comisionados', 'var(--accent)')+
+      kpi('Comisión Total',fmt(tot.comision_total||0),'Acumulada Ene-Abr','var(--green)')+
+      kpi('% Promedio',(tot.pct_promedio||0)+'%','Tasa promedio de comisión','var(--navy)')+
+      kpi('Cobrado total',fmt(tot.cobrado_total||0),'base de cálculo','var(--abc)')+
+      kpi('Operaciones',(tot.n_operaciones||0)+'','cobros comisionados','var(--accent)')+
     '</div>'+
     '<div class="g2">'+
       '<div class="card"><div class="ctitle">📈 Evolución de comisiones</div><div class="ch"><canvas id="c-com-evol"></canvas></div></div>'+
       '<div class="card"><div class="ctitle">💰 Comisión acumulada</div><div class="ch"><canvas id="c-com-acum"></canvas></div></div>'+
     '</div>'+
     '<div class="g2">'+
-      '<div class="card"><div class="ctitle">📦 Comisión por Familia</div>'+
-        '<div class="tscroll"><table class="tbl"><thead><tr><th>Familia</th><th class="num">Comisión</th></tr></thead><tbody>'+
-        topFams.map(function(e){return '<tr><td>'+e[0]+'</td><td class="num"><b>'+fmt(e[1])+'</b></td></tr>';}).join('')+
-        '</tbody></table></div></div>'+
-      '<div class="card"><div class="ctitle">🏆 Comisión por Cliente</div>'+
-        '<div class="tscroll"><table class="tbl"><thead><tr><th>Cliente</th><th class="num">Comisión</th></tr></thead><tbody>'+
-        topClis.map(function(e){return '<tr><td>'+e[0]+'</td><td class="num"><b>'+fmt(e[1])+'</b></td></tr>';}).join('')+
-        '</tbody></table></div></div>'+
+      '<div class="card"><div class="ctitle">📦 Por Familia</div><div class="tscroll"><table class="tbl"><thead><tr><th>Familia</th><th class="num">Comisión</th></tr></thead><tbody>'+topF.map(function(e){return '<tr><td>'+e[0]+'</td><td class="num"><b>'+fmt(e[1])+'</b></td></tr>';}).join('')+'</tbody></table></div></div>'+
+      '<div class="card"><div class="ctitle">🏆 Por Cliente</div><div class="tscroll"><table class="tbl"><thead><tr><th>Cliente</th><th class="num">Comisión</th></tr></thead><tbody>'+topC.map(function(e){return '<tr><td>'+e[0]+'</td><td class="num"><b>'+fmt(e[1])+'</b></td></tr>';}).join('')+'</tbody></table></div></div>'+
     '</div>';
-
   setTimeout(function(){
     dChart('c-com-evol');
-    charts['c-com-evol'] = new Chart(el('c-com-evol'),{type:'bar',
-      data:{labels:mesesCom.map(function(m){return ML_com[m]||m;}),
-        datasets:[{data:imp_meses,backgroundColor:imp_meses.map(function(){return col;})}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:fmt}}}}
-    });
-    // Acumulado
-    var acum=0, acumData=imp_meses.map(function(v){acum+=v;return acum;});
+    charts['c-com-evol']=new Chart(el('c-com-evol'),{type:'bar',data:{labels:mc.map(function(m){return ML_c[m]||m;}),datasets:[{data:impM,backgroundColor:impM.map(function(){return col;})}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:fmt}}}}});
+    var acum=0, acumData=impM.map(function(x){acum+=x;return acum;});
     dChart('c-com-acum');
-    charts['c-com-acum'] = new Chart(el('c-com-acum'),{type:'line',
-      data:{labels:mesesCom.map(function(m){return ML_com[m]||m;}),
-        datasets:[{data:acumData,borderColor:col,backgroundColor:col+'22',fill:true,tension:0.3,pointRadius:6,borderWidth:2}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:fmt}}}}
-    });
+    charts['c-com-acum']=new Chart(el('c-com-acum'),{type:'line',data:{labels:mc.map(function(m){return ML_c[m]||m;}),datasets:[{data:acumData,borderColor:col,backgroundColor:col+'22',fill:true,tension:.3,pointRadius:6,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:fmt}}}}});
   },50);
 }
-
-
-function buildGerencia() {
-  makeTabs(['📊 Resumen','👥 Vendedores','📈 Evolución Clientes','🗺️ Mapa','🔄 Frecuencia','📦 Marcas','💰 Cobranzas','🔁 Retención','🚘 VW Argentina','🔍 Filtros']);
-  // Rename panes for new modules
-  var panes = document.querySelectorAll('.pane');
-  var names = ['pane0','pane1','pane2','pane3','pane4','pane5','pane6','pane-ret','pane-vw','pane-filtros'];
-  panes.forEach(function(p,i){ if(names[i]) p.id = names[i]; });
-  buildGResumen(); buildGVendedores(); buildGCliEvol(); buildGMapa(); buildGFrecuencia(); buildGMarcas(); buildGCobranzas(); buildGRetencion(); buildGVW(); buildGFiltros();
-}
-
-// ── RESUMEN ───────────────────────────────────────────────────────────────────
-function buildGResumen() {
-  var vvm = SD.venta_vend_mes, vem = SD.venta_emp_mes;
-  var abcL = MESES.reduce(function(s,m){return s+(vem['ABC ACCESORIOS S.R.L.'][m]||0);},0);
-  var abcP = MESES.reduce(function(s,m){return s+(vem['ABC - PRESUPUESTO'][m]||0);},0);
-  var mc   = MESES.reduce(function(s,m){return s+(vem['MULTICAPOTAS S.R.L.'][m]||0);},0);
-  var tot  = abcL + abcP + mc;
-  var mar  = Object.keys(vem).reduce(function(s,e){return s+(vem[e][MESES[MESES.length-1]]||0);},0);
-  var feb  = Object.keys(vem).reduce(function(s,e){return s+(vem[e][MESES[MESES.length-2]]||0);},0);
-
-  el('pane0').innerHTML =
-    '<div class="kpi-grid">' +
-      kpi('TOTAL '+MESES_L[MESES[0]].substring(0,3)+'-'+MESES_L[MESES[MESES.length-1]]+' 2026', fmt(tot), 'ABC + Multicap · '+MESES.length+' meses', 'var(--navy)') +
-      kpi('ABC ACCESORIOS', fmt(abcL+abcP), 'Legal + Presupuesto', 'var(--abc)') +
-      kpi('MULTICAPOTAS', fmt(mc), 'Q1 2026', 'var(--mc)') +
-      kpi((MESES_L[MESES[MESES.length-1]]||'Ult.Mes').toUpperCase()+' 2026', fmt(mar), 'vs '+(MESES_L[MESES[MESES.length-2]]||'ant')+': '+varBadge(mar,feb), 'var(--accent)') +
-      kpi('CLIENTES EN RIESGO', SD.clientes_caidos_global.length+'', 'Sin compras en '+(MESES_L[MESES[MESES.length-1]]||'último mes'), 'var(--red)') +
-    '</div>' +
-    '<div class="g2">' +
-      '<div class="card"><div class="ctitle">📈 Evolución por Empresa</div><div class="ch"><canvas id="c-emp"></canvas></div></div>' +
-      '<div class="card"><div class="ctitle">👥 Ventas por Vendedor Q1</div><div class="ch"><canvas id="c-vend"></canvas></div></div>' +
-    '</div>' +
-    '<div class="g2">' +
-      '<div class="card"><div class="ctitle">🥧 Mix por Empresa</div><div class="ch"><canvas id="c-mix"></canvas></div></div>' +
-      '<div class="card"><div class="ctitle">📅 Evolución por Vendedor</div><div class="ch"><canvas id="c-vevol"></canvas></div></div>' +
-    '</div>';
-
-  setTimeout(function(){
-    dChart('c-emp');
-    charts['c-emp'] = new Chart(el('c-emp'),{type:'bar',data:{labels:MESES.map(function(m){return (MESES_L[m]||m).substring(0,3);}),datasets:[
-      {label:'ABC Legal',data:MESES.map(function(m){return vem['ABC ACCESORIOS S.R.L.'][m]||0;}),backgroundColor:'#2E86AB'},
-      {label:'Presupuesto',data:MESES.map(function(m){return vem['ABC - PRESUPUESTO'][m]||0;}),backgroundColor:'#E8A020'},
-      {label:'Multicap',data:MESES.map(function(m){return vem['MULTICAPOTAS S.R.L.'][m]||0;}),backgroundColor:'#7B2D8B'},
-    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{x:{stacked:true},y:{stacked:true,ticks:{callback:fmt}}}}});
-
-    var vt = VENDEDORES.map(function(v){return MESES.reduce(function(s,m){return s+(vvm[v][m]||0);},0);});
-    dChart('c-vend');
-    charts['c-vend'] = new Chart(el('c-vend'),{type:'bar',data:{labels:VENDEDORES.map(function(v){return v.split(' ')[0];}),datasets:[{data:vt,backgroundColor:VENDEDORES.map(function(v){return VCOLORS[v]||'#888';})}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:fmt}}}}});
-
-    dChart('c-mix');
-    charts['c-mix'] = new Chart(el('c-mix'),{type:'doughnut',data:{labels:['ABC Legal','Presupuesto','Multicap'],datasets:[{data:[abcL,abcP,mc],backgroundColor:['#2E86AB','#E8A020','#7B2D8B']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
-
-    dChart('c-vevol');
-    charts['c-vevol'] = new Chart(el('c-vevol'),{type:'line',data:{labels:MESES.map(function(m){return (MESES_L[m]||m).substring(0,3);}),datasets:VENDEDORES.map(function(v){return{label:v.split(' ')[0],data:MESES.map(function(m){return vvm[v][m]||0;}),borderColor:VCOLORS[v]||'#888',backgroundColor:'transparent',tension:.3,pointRadius:4};})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{ticks:{callback:fmt}}}}});
-  },50);
-}
-function kpi(lbl,val,sub,color) {
-  return '<div class="kpi" style="border-color:'+color+'"><div class="kpi-lbl">'+lbl+'</div><div class="kpi-val">'+val+'</div><div class="kpi-sub">'+sub+'</div></div>';
-}
-
-// ── VENDEDORES ────────────────────────────────────────────────────────────────
-function buildGVendedores() {
-  var vvm = SD.venta_vend_mes;
-  var sorted = VENDEDORES.slice().sort(function(a,b){
-    return MESES.reduce(function(s,m){return s+(vvm[b][m]||0);},0) - MESES.reduce(function(s,m){return s+(vvm[a][m]||0);},0);
-  });
-  var maxT = MESES.reduce(function(s,m){return s+(vvm[sorted[0]][m]||0);},0);
-  var pc = ['gold','silver','bronze','rnorm','rnorm','rnorm'];
-
-  var rankHTML = sorted.map(function(v,i){
-    var t = MESES.reduce(function(s,m){return s+(vvm[v][m]||0);},0);
-    var ncli = Object.keys(SD.vendedor_detalle[v].clientes_mes['2026-03']||{}).length;
-    return '<div class="ri">' +
-      '<div class="rpos '+pc[i]+'">'+(i+1)+'</div>' +
-      '<div class="rname">'+v+'<div class="rsub">'+ncli+' clientes activos Mar</div></div>' +
-      '<div class="rbar"><div class="rbg"><div class="rbar-fill" style="width:'+Math.round(t/maxT*100)+'%;background:'+VCOLORS[v]+'"></div></div></div>' +
-      '<div class="ramt" style="color:'+VCOLORS[v]+'">'+fmt(t)+'</div>' +
-    '</div>';
-  }).join('');
-
-  var avgT = sorted.reduce(function(s,v){return s+MESES.reduce(function(a,m){return a+(vvm[v][m]||0);},0);},0)/sorted.length;
-  var tblHTML = '<div class="tscroll"><table class="tbl"><thead><tr>' +
-    '<th>Vendedor</th><th class="num">% del líder</th><th class="num">vs Promedio</th><th>Tendencia</th><th class="num">Clientes</th></tr></thead><tbody>' +
-    sorted.map(function(v){
-      var t=MESES.reduce(function(s,m){return s+(vvm[v][m]||0);},0);
-      var pct=Math.round(t/maxT*100);
-      var vsAvg=Math.round((t-avgT)/avgT*100);
-      var e=vvm[v][MESES[0]]||0, ult=vvm[v][MESES[MESES.length-1]]||0;
-      var ncli=Object.keys(SD.vendedor_detalle[v].clientes_mes[MESES[MESES.length-1]]||{}).length;
-      var badge=vsAvg>=0?'<span class="badge bg">▲ '+vsAvg+'%</span>':'<span class="badge br">▼ '+Math.abs(vsAvg)+'%</span>';
-      return '<tr><td><b>'+v.split(' ')[0]+'</b></td>' +
-        '<td class="num"><b>'+pct+'%</b></td>' +
-        '<td class="num">'+badge+'</td>' +
-        '<td>'+varBadge(ult,e)+'</td>' +
-        '<td class="num">'+ncli+'</td></tr>';
-    }).join('') +
-    '</tbody></table></div>';
-
-  el('pane1').innerHTML =
-    '<div class="card"><div class="ctitle">🏆 Ranking — Q1 2026</div>'+rankHTML+'</div>' +
-    '<div class="card"><div class="ctitle">📊 Detalle</div>'+tblHTML+'</div>';
-}
-
-// ── EVOLUCIÓN CLIENTES ────────────────────────────────────────────────────────
-function buildGCliEvol() {
-  var segOpts = '<option value="">Todos</option><option>Terminal</option><option>Terminal Toyota</option><option>Especial</option><option>Dealer / Concesionaria</option><option>Aftermarket</option><option>Aftermarket - Sonax</option>';
-  el('pane2').innerHTML =
-    '<div class="card"><div class="ctitle">📈 Evolución mensual — Top clientes</div>' +
-    '<div class="fbar">' +
-      '<span class="flbl">Mostrar:</span>' +
-      '<select class="fsel" id="etn" onchange="renderCliEvol()"><option value="5">Top 5</option><option value="10" selected>Top 10</option><option value="20">Top 20</option></select>' +
-      '<span class="flbl">Segmento:</span>' +
-      '<select class="fsel" id="eseg" onchange="renderCliEvol()">'+segOpts+'</select>' +
-    '</div>' +
-    '<div class="ch-lg"><canvas id="c-cli-evol"></canvas></div></div>' +
-    '<div class="card"><div class="ctitle">📋 Detalle</div>' +
-    '<div class="tscroll"><table class="tbl"><thead><tr><th>Cliente</th><th>Vendedor</th><th>Segmento</th><th>Provincia</th><th class="num">Ene</th><th class="num">Feb</th><th class="num">Mar</th><th class="num">Total Q1</th><th>Var</th><th>Meses</th></tr></thead><tbody id="cli-evol-tbody"></tbody></table></div></div>';
-  renderCliEvol();
-}
-function renderCliEvol() {
-  var topN = parseInt(el('etn').value);
-  var seg  = el('eseg').value;
-  var COLS = ['#2E86AB','#E8A020','#1E8449','#C0392B','#7B2D8B','#117A65','#D35400','#8E44AD','#1A5276','#784212','#2C3E50','#CB4335','#1ABC9C','#2980B9','#E67E22','#566573','#B7950B','#27AE60'];
-  var clis = Object.entries(SD.cli_evol)
-    .filter(function(e){ return !seg || e[1].segmento===seg; })
-    .sort(function(a,b){ return b[1].total-a[1].total; })
-    .slice(0,topN);
-  dChart('c-cli-evol');
-  charts['c-cli-evol'] = new Chart(el('c-cli-evol'),{type:'line',data:{labels:MESES.map(function(m){return (MESES_L[m]||m).substring(0,3);}),datasets:clis.map(function(e,i){return{label:e[0].length>25?e[0].substring(0,25)+'…':e[0],data:MESES.map(function(m){return e[1].meses[m]||0;}),borderColor:COLS[i%COLS.length],backgroundColor:'transparent',tension:.3,pointRadius:5,borderWidth:2};})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:10}}}},scales:{y:{ticks:{callback:fmt}}}}});
-  el('cli-evol-tbody').innerHTML = clis.map(function(e){
-    var c=e[0],d=e[1],en=d.meses['2026-01']||0,fe=d.meses['2026-02']||0,ma=d.meses['2026-03']||0;
-    var star=d.meses_activo===3?'🟢 3/3':d.meses_activo===2?'🟡 2/3':'🔴 1/3';
-    return '<tr><td><b>'+c+'</b></td><td>'+d.vendedor+'</td><td><span class="badge bb">'+d.segmento+'</span></td><td>'+(d.provincia||'—')+'</td><td class="num">'+fmt(en)+'</td><td class="num">'+fmt(fe)+'</td><td class="num">'+fmt(ma)+'</td><td class="num"><b>'+fmt(d.total)+'</b></td><td>'+varBadge(ma,en)+'</td><td>'+star+'</td></tr>';
-  }).join('');
-}
-
-// ── MAPA ──────────────────────────────────────────────────────────────────────
-function buildGMapa() {
-  var marcas   = SD.geo.marcas_list;
-  var familias = SD.geo.familias_list;
-  var mOpts = marcas.map(function(m){return '<option>'+m+'</option>';}).join('');
-  var fOpts = familias.map(function(f){return '<option>'+f+'</option>';}).join('');
-
-  el('pane3').innerHTML =
-    '<div class="card" style="margin-bottom:20px"><div class="ctitle">🗺️ Presencia Geográfica</div>' +
-    '<div class="fbar">' +
-      '<span class="flbl">Ver:</span>' +
-      '<select class="fsel" id="mmetric" onchange="refreshMap()"><option value="importe">Facturación</option><option value="clientes">Clientes</option></select>' +
-      '<span class="flbl">Marca:</span>' +
-      '<select class="fsel" id="mmarca" onchange="onMF(\'m\')"><option value="">Todas</option>'+mOpts+'</select>' +
-      '<span class="flbl">Vendedor:</span>' +'<select class="fsel" id="mvendedor" onchange="onMF(\"v\")"><option value="">Todos</option>' +['Matias Matozza','Veronica Albarracin','Alejandro Contardo','Nahuel Pontino','Oscar Luna','Hernan Villamil'].map(function(v){return '<option>'+v+'</option>';}).join('') +'</select>' +'<span class="flbl">Familia:</span>' +
-      '<select class="fsel" id="mfamilia" onchange="onMF(\'f\')"><option value="">Todas</option>'+fOpts+'</select>' +
-    '</div>' +
-    '<div id="leaflet-map"></div></div>' +
-    '<div class="g2">' +
-      '<div class="card"><div class="ctitle">📊 Ranking de Provincias</div><div id="prov-rank"></div></div>' +
-      '<div class="card" id="prov-det-card" style="display:none"><div class="ctitle">📍 <span id="prov-det-name"></span></div><div id="prov-det"></div></div>' +
-    '</div>';
-
-  setTimeout(function(){ initMap(); renderProvRank(); }, 200);
-}
-function getMapData() {
-  var m = el('mmarca')    ? el('mmarca').value    : '';
-  var f = el('mfamilia')  ? el('mfamilia').value  : '';
-  var v = el('mvendedor') ? el('mvendedor').value : '';
-  if (m) return SD.geo.marcas[m]    || {};
-  if (f) return SD.geo.familias[f]  || {};
-  if (v) return (SD.geo.vendedores && SD.geo.vendedores[v]) || {};
-  return SD.geo.total || {};
-}
-function onMF(type) {
-  if (type==='m') { el('mfamilia').value=''; if(el('mvendedor')) el('mvendedor').value=''; }
-  if (type==='f') { el('mmarca').value='';   if(el('mvendedor')) el('mvendedor').value=''; }
-  if (type==='v') { el('mmarca').value='';   el('mfamilia').value=''; }
-  refreshMap(); renderProvRank();
-}
-function provColor(val, maxVal) {
-  if (!val || val===0) return '#E8ECF4';
-  var t = 0.15 + 0.85*(val/maxVal);
-  return 'rgb('+Math.round(61*(1-t)+27*t)+','+Math.round(90*(1-t)+42*t)+','+Math.round(153*(1-t)+71*t)+')';
-}
-function initMap() {
-  if (lmap) { lmap.remove(); lmap=null; llayer=null; }
-  lmap = L.map('leaflet-map',{center:[-40,-65],zoom:4,zoomControl:true,scrollWheelZoom:false,attributionControl:false});
-  refreshMap();
-}
-function refreshMap() {
-  if (!lmap) return;
-  var mapData = getMapData();
-  var metric  = el('mmetric') ? el('mmetric').value : 'importe';
-  var vals    = Object.values(mapData).map(function(d){ return metric==='importe'?d.importe:d.clientes; });
-  var maxVal  = Math.max.apply(null, vals.concat([1]));
-
-  if (llayer) { llayer.remove(); llayer=null; }
-  llayer = L.geoJSON(GEO, {
-    style: function(feature) {
-      var pk  = PROV_MAP[feature.properties.name] || feature.properties.name;
-      var d   = mapData[pk];
-      var val = d ? (metric==='importe'?d.importe:d.clientes) : 0;
-      return {fillColor:provColor(val,maxVal), fillOpacity:val>0?.85:.4, color:'white', weight:1.5};
-    },
-    onEachFeature: function(feature, layer) {
-      var pk  = PROV_MAP[feature.properties.name] || feature.properties.name;
-      var d   = mapData[pk];
-      var lbl = d ? (metric==='importe'?fmt(d.importe):d.clientes+' clientes') : 'Sin datos';
-      layer.bindTooltip('<b>'+feature.properties.name+'</b><br>'+lbl,{sticky:true,opacity:.95});
-      layer.on({
-        mouseover: function(e){ e.target.setStyle({weight:3,color:'#E8A020',fillOpacity:.95}); },
-        mouseout:  function(e){ llayer.resetStyle(e.target); },
-        click:     function(){  showProv(pk); }
-      });
-    }
-  }).addTo(lmap);
-  lmap.setView([-38, -65], 4);
-  renderProvRank();
-}
-function renderProvRank() {
-  var mapData = getMapData();
-  var metric  = el('mmetric') ? el('mmetric').value : 'importe';
-  var list = Object.entries(mapData)
-    .map(function(e){ return {p:e[0],v:metric==='importe'?e[1].importe:e[1].clientes,d:e[1]}; })
-    .filter(function(x){ return x.v>0; })
-    .sort(function(a,b){ return b.v-a.v; });
-  if (!el('prov-rank')) return;
-  var maxR = list[0]?list[0].v:1;
-  var pc = ['gold','silver','bronze'];
-  el('prov-rank').innerHTML = list.map(function(item,i){
-    var lbl = metric==='importe' ? fmt(item.v) : item.v+' clientes';
-    var sub = metric==='importe' ? item.d.clientes+' clientes' : fmt(item.d.importe);
-    return '<div class="ri" style="cursor:pointer" onclick="showProv(\''+item.p+'\')">'+
-      '<div class="rpos '+(pc[i]||'rnorm')+'">'+(i+1)+'</div>'+
-      '<div class="rname">'+item.p+'<div class="rsub">'+sub+'</div></div>'+
-      '<div class="rbar"><div class="rbg"><div class="rbar-fill" style="width:'+Math.round(item.v/maxR*100)+'%;background:var(--navy2)"></div></div></div>'+
-      '<div class="ramt">'+lbl+'</div></div>';
-  }).join('');
-}
-function showProv(prov) {
-  var d = getMapData()[prov];
-  if (!d) return;
-  if (el('prov-det-card')) el('prov-det-card').style.display='block';
-  if (el('prov-det-name')) el('prov-det-name').textContent=prov;
-  if (el('prov-det')) el('prov-det').innerHTML =
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">'+
-      '<div class="kpi" style="border-color:var(--navy);padding:12px"><div class="kpi-lbl">Facturación</div><div class="kpi-val" style="font-size:1.2rem">'+fmt(d.importe)+'</div></div>'+
-      '<div class="kpi" style="border-color:var(--accent);padding:12px"><div class="kpi-lbl">Clientes</div><div class="kpi-val" style="font-size:1.2rem">'+d.clientes+'</div></div>'+
-    '</div>'+
-    '<div style="font-size:.78rem;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:8px">Top clientes</div>'+
-    d.top_clientes.map(function(c){
-      return '<div class="ai info">'+
-        '<div><div class="ai-name" style="font-size:.85rem">'+c.nombre+'</div>'+
-        '<div class="ai-det">'+(c.localidad?c.localidad+' · ':'')+c.segmento+'</div></div>'+
-        '<div class="ai-amt" style="font-size:.85rem">'+fmt(c.importe)+'</div></div>';
-    }).join('');
-}
-
-// ── FRECUENCIA ────────────────────────────────────────────────────────────────
-function buildGFrecuencia() {
-  var fs  = SD.freq_summary;
-  var fd  = SD.freq_data;
-  var tot = (fs['4_meses']||0)+(fs['3_meses']||0)+(fs['2_meses']||0)+(fs['1_mes']||0);
-  var sorted = fd.slice().sort(function(a,b){return b.total-a.total;});
-  var totVol = sorted.reduce(function(s,c){return s+c.total;},0);
-  var cum=0, cp=sorted.map(function(c){cum+=c.total;return Math.round(cum/totVol*100);});
-  var vOpts = VENDEDORES.map(function(v){return '<option>'+v+'</option>';}).join('');
-  var sOpts = '<option>Terminal</option><option>Terminal Toyota</option><option>Especial</option><option>Dealer / Concesionaria</option><option>Aftermarket</option><option>Aftermarket - Sonax</option>';
-
-  el('pane4').innerHTML =
-    '<div class="kpi-grid">'+
-      kpi('🟢 3 de 3 meses', fs['3_meses']+'', Math.round((fs['3_meses']||0)/tot*100)+'% de la cartera', 'var(--green)')+
-      kpi('🟡 2 de 3 meses', fs['2_meses']+'', Math.round((fs['2_meses']||0)/tot*100)+'% de la cartera', 'var(--orange)')+
-      kpi('🔴 1 de 3 meses', fs['1_mes']+'',   Math.round((fs['1_mes']||0)/tot*100)+'% de la cartera',   'var(--red)')+
-      kpi('Total activa',     tot+'',            'con al menos 1 compra Q1',                          'var(--navy)')+
-    '</div>'+
-    '<div class="g2">'+
-      '<div class="card"><div class="ctitle">📊 Distribución</div><div class="ch-sm"><canvas id="c-freq"></canvas></div></div>'+
-      '<div class="card"><div class="ctitle">💰 Concentración de cartera</div>'+
-        [['Top 5',cp[4]||100],['Top 10',cp[9]||100],['Top 20',cp[19]||100]].map(function(x){
-          return '<div class="pbar"><div class="pbar-row"><span style="font-weight:600">'+x[0]+' clientes</span><span style="font-weight:800;color:var(--navy)">'+x[1]+'%</span></div><div class="pbg"><div class="pfill green" style="width:'+x[1]+'%"></div></div></div>';
-        }).join('')+
-      '</div>'+
-    '</div>'+
-    '<div class="card"><div class="ctitle">🔄 Detalle</div>'+
-      '<div class="fbar">'+
-        '<span class="flbl">Frecuencia:</span><select class="fsel" id="ff" onchange="renderFreq()"><option value="">Todos</option><option value="3">🟢 3 meses</option><option value="2">🟡 2 meses</option><option value="1">🔴 1 mes</option></select>'+
-        '<span class="flbl">Vendedor:</span><select class="fsel" id="fv" onchange="renderFreq()"><option value="">Todos</option>'+vOpts+'</select>'+
-        '<span class="flbl">Segmento:</span><select class="fsel" id="fs" onchange="renderFreq()"><option value="">Todos</option>'+sOpts+'</select>'+
-      '</div>'+
-      '<div class="tscroll"><table class="tbl"><thead><tr><th>Cliente</th><th>Vendedor</th><th>Segmento</th><th>Provincia</th><th class="num">Ene</th><th class="num">Feb</th><th class="num">Mar</th><th class="num">Abr</th><th class="num">Total</th><th>Frecuencia</th></tr></thead><tbody id="freq-tbody"></tbody></table></div>'+
-    '</div>';
-
-  setTimeout(function(){
-    dChart('c-freq');
-    charts['c-freq'] = new Chart(el('c-freq'),{type:'bar',data:{labels:['3 meses','2 meses','1 mes'],datasets:[{data:[fs['3_meses'],fs['2_meses'],fs['1_mes']],backgroundColor:['#1E8449','#E67E22','#C0392B']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'Clientes'}}}}});
-  },50);
-  renderFreq();
-}
-function renderFreq() {
-  var ff=el('ff').value, fv=el('fv').value, fs2=el('fs').value;
-  var d = SD.freq_data;
-  if (ff)  d=d.filter(function(r){return r.meses_activo===parseInt(ff);});
-  if (fv)  d=d.filter(function(r){return r.vendedor===fv;});
-  if (fs2) d=d.filter(function(r){return r.segmento===fs2;});
-  el('freq-tbody').innerHTML = d.map(function(r){
-    var icon=r.meses_activo===3?'🟢 3/3':r.meses_activo===2?'🟡 2/3':'🔴 1/3';
-    var bg=r.meses_activo===2?'background:#FEF9E7':r.meses_activo===1?'background:#FFF5F5':'';
-    return '<tr style="'+bg+'"><td><b>'+r.cliente+'</b></td><td>'+r.vendedor+'</td><td><span class="badge bb">'+r.segmento+'</span></td><td>'+(r.provincia||'—')+'</td><td class="num">'+(r.m1?fmt(r.m1):'—')+'</td><td class="num">'+(r.m2?fmt(r.m2):'—')+'</td><td class="num">'+(r.m3?fmt(r.m3):'—')+'</td><td class="num">'+(r.m4?fmt(r.m4):'—')+'</td><td class="num"><b>'+fmt(r.total)+'</b></td><td>'+icon+'</td></tr>';
-  }).join('');
-}
-
-// ── MARCAS ────────────────────────────────────────────────────────────────────
-function buildGMarcas() {
-  var mm = SD.marcas_mes;
-  var marcas = Object.keys(mm).sort(function(a,b){
-    return MESES.reduce(function(s,m){return s+(mm[b][m]||0);},0)-MESES.reduce(function(s,m){return s+(mm[a][m]||0);},0);
-  });
-  el('pane5').innerHTML =
-    '<div class="g2">'+
-      '<div class="card"><div class="ctitle">📈 Evolución top marcas</div><div class="ch"><canvas id="c-mevol"></canvas></div></div>'+
-      '<div class="card"><div class="ctitle">🥧 Mix de marcas Q1</div><div class="ch"><canvas id="c-mpie"></canvas></div></div>'+
-    '</div>'+
-    '<div class="card"><div class="ctitle">📊 Detalle por Marca</div><div class="tscroll"><table class="tbl"><thead><tr><th>Marca</th><th class="num">Enero</th><th class="num">Feb</th><th class="num">Marzo</th><th class="num">Total Q1</th><th>Var</th></tr></thead><tbody>'+
-    marcas.map(function(m){
-      var e=mm[m]['2026-01']||0,f=mm[m]['2026-02']||0,ma=mm[m]['2026-03']||0;
-      return '<tr><td><b>'+m+'</b></td><td class="num">'+fmt(e)+'</td><td class="num">'+fmt(f)+'</td><td class="num">'+fmt(ma)+'</td><td class="num"><b>'+fmt(e+f+ma)+'</b></td><td>'+varBadge(ma,e)+'</td></tr>';
-    }).join('')+
-    '</tbody></table></div></div>';
-
-  var top8 = marcas.slice(0,8);
-  setTimeout(function(){
-    dChart('c-mevol');
-    charts['c-mevol'] = new Chart(el('c-mevol'),{type:'line',data:{labels:MESES.map(function(m){return (MESES_L[m]||m).substring(0,3);}),datasets:top8.map(function(m){return{label:m,data:MESES.map(function(mes){return mm[m][mes]||0;}),borderColor:MCOLORS[m]||'#888',backgroundColor:'transparent',tension:.3,pointRadius:4};})},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{ticks:{callback:fmt}}}}});
-    var tots=top8.map(function(m){return MESES.reduce(function(s,mes){return s+(mm[m][mes]||0);},0);});
-    dChart('c-mpie');
-    charts['c-mpie'] = new Chart(el('c-mpie'),{type:'doughnut',data:{labels:top8,datasets:[{data:tots,backgroundColor:top8.map(function(m){return MCOLORS[m]||'#aaa';})}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
-  },50);
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-// VENDEDOR
-// ════════════════════════════════════════════════════════════════════════════
-// ── RETENCIÓN DE CLIENTES ─────────────────────────────────────────────────────
-function buildGRetencion() {
-  var ret = SD.retencion;
-  var meses = SD.meses || Object.keys(ret);
-  var ML = {'2026-01':'Enero','2026-02':'Febrero','2026-03':'Marzo','2026-04':'Abril'};
-
-  // Build waterfall data
-  var labels = meses.slice(1).map(function(m){ return ML[m]||m; });
-  var nuevos      = meses.slice(1).map(function(m){ return ret[m] ? ret[m].nuevos      : 0; });
-  var reactivados = meses.slice(1).map(function(m){ return ret[m] ? ret[m].reactivados : 0; });
-  var retenidos   = meses.slice(1).map(function(m){ return ret[m] ? ret[m].retenidos   : 0; });
-  var perdidos    = meses.slice(1).map(function(m){ return ret[m] ? ret[m].perdidos    : 0; });
-
-  el('pane-ret').innerHTML =
-    '<div class="kpi-grid">'+
-      kpi('Nuevos en Abril',      (ret['2026-04']?ret['2026-04'].nuevos:0)+'',      'Compraron por primera vez', 'var(--green)')+
-      kpi('Reactivados en Abril', (ret['2026-04']?ret['2026-04'].reactivados:0)+'', 'Volvieron después de ausencia', 'var(--abc)')+
-      kpi('Retenidos en Abril',   (ret['2026-04']?ret['2026-04'].retenidos:0)+'',   'Compraron también en Marzo', 'var(--navy)')+
-      kpi('Perdidos en Abril',    (ret['2026-04']?ret['2026-04'].perdidos:0)+'',    'Compraron en Marzo y no en Abril', 'var(--red)')+
-    '</div>'+
-    '<div class="g2">'+
-      '<div class="card"><div class="ctitle">📊 Evolución de la cartera</div>'+
-        '<div class="ch"><canvas id="c-ret-evol"></canvas></div></div>'+
-      '<div class="card"><div class="ctitle">🔄 Tasa de retención mensual</div>'+
-        '<div class="ch"><canvas id="c-ret-tasa"></canvas></div></div>'+
-    '</div>'+
-    '<div class="g2">'+
-      '<div class="card"><div class="ctitle">🔴 Clientes perdidos en el último mes</div>'+
-        buildPerdidosList(ret[meses[meses.length-1]])+
-      '</div>'+
-      '<div class="card"><div class="ctitle">🆕 Clientes nuevos y reactivados</div>'+
-        buildNuevosList(ret[meses[meses.length-1]])+
-      '</div>'+
-    '</div>';
-
-  setTimeout(function(){
-    dChart('c-ret-evol');
-    charts['c-ret-evol'] = new Chart(el('c-ret-evol'),{
-      type:'bar',
-      data:{labels:labels,datasets:[
-        {label:'Nuevos',      data:nuevos,      backgroundColor:'#1E8449'},
-        {label:'Reactivados', data:reactivados, backgroundColor:'#2E86AB'},
-        {label:'Perdidos',    data:perdidos.map(function(v){return -v;}), backgroundColor:'#C0392B'},
-      ]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},
-        scales:{x:{stacked:true},y:{stacked:true,ticks:{callback:function(v){return Math.abs(v);}}}}}
-    });
-
-    var tasas = meses.slice(1).map(function(m,i){
-      var prev = ret[meses[i]] ? ret[meses[i]].total : 1;
-      var rete = ret[m] ? ret[m].retenidos : 0;
-      return prev > 0 ? Math.round(rete/prev*100) : 0;
-    });
-    dChart('c-ret-tasa');
-    charts['c-ret-tasa'] = new Chart(el('c-ret-tasa'),{
-      type:'line',
-      data:{labels:labels,datasets:[{
-        label:'% Retenidos',data:tasas,
-        borderColor:'#2E86AB',backgroundColor:'rgba(46,134,171,0.1)',
-        tension:0.3,pointRadius:6,fill:true,
-      }]},
-      options:{responsive:true,maintainAspectRatio:false,
-        scales:{y:{min:0,max:100,ticks:{callback:function(v){return v+'%';}}}},
-        plugins:{legend:{display:false}}}
-    });
-  },50);
-}
-
-function buildPerdidosList(mesData) {
-  if (!mesData || !mesData.perdidos_list || !mesData.perdidos_list.length)
-    return '<div class="empty"><div class="ico">✅</div><p>Sin clientes perdidos</p></div>';
-  return '<div class="tscroll"><table class="tbl"><thead><tr><th>Cliente</th><th>Vendedor</th><th>Segmento</th><th class="num">Historial</th></tr></thead><tbody>'+
-    mesData.perdidos_list.slice(0,15).map(function(c){
-      return '<tr><td><b>'+c.cliente+'</b></td><td>'+c.vendedor+'</td>'+
-        '<td><span class="badge bb">'+c.segmento+'</span></td>'+
-        '<td class="num">'+fmt(c.total_hist)+'</td></tr>';
-    }).join('')+'</tbody></table></div>';
-}
-
-function buildNuevosList(mesData) {
-  if (!mesData) return '';
-  var items = (mesData.nuevos_list||[]).map(function(c){return {c:c,tipo:'🆕 Nuevo'};})
-    .concat((mesData.reactivados_list||[]).map(function(c){return {c:c,tipo:'🔄 Reactivado'};}));
-  if (!items.length) return '<div class="empty"><div class="ico">—</div><p>Sin nuevos ni reactivados</p></div>';
-  return '<div class="tscroll"><table class="tbl"><thead><tr><th>Cliente</th><th>Tipo</th></tr></thead><tbody>'+
-    items.slice(0,15).map(function(x){
-      return '<tr><td><b>'+x.c+'</b></td><td>'+x.tipo+'</td></tr>';
-    }).join('')+'</tbody></table></div>';
-}
-
-// ── INFORME VW ────────────────────────────────────────────────────────────────
-function buildGVW() {
-  var vw   = SD.vw;
-  var ML   = {'2026-01':'Ene','2026-02':'Feb','2026-03':'Mar','2026-04':'Abr'};
-  var MESES = SD.meses || ['2026-01','2026-02','2026-03','2026-04'];
-  var prods = vw.productos;
-  var criticos  = prods.filter(function(p){return p.riesgo_stock==='sin_stock'||p.riesgo_stock==='critico';});
-  var bajos     = prods.filter(function(p){return p.riesgo_stock==='bajo';});
-  var ok        = prods.filter(function(p){return p.riesgo_stock==='ok';});
-  var multicap  = prods.filter(function(p){return p.riesgo_stock==='multicap';});
-
-  el('pane-vw').innerHTML =
-    '<div class="kpi-grid">'+
-      kpi('TOTAL VW', fmt(vw.total), 'Facturado Ene-Abr 2026', 'var(--navy)')+
-      kpi('SKUs vendidos', prods.length+'', 'productos distintos', 'var(--abc)')+
-      kpi('⚠️ Riesgo crítico', criticos.length+'', 'sin stock o <1 mes cobertura', 'var(--red)')+
-      kpi('⚡ Stock bajo', bajos.length+'', 'menos de 2 meses cobertura', 'var(--orange)')+
-    '</div>'+
-
-    // Evolution chart
-    '<div class="g2">'+
-      '<div class="card"><div class="ctitle">📈 Evolución mensual VW</div>'+
-        '<div class="ch"><canvas id="c-vw-evol"></canvas></div></div>'+
-      '<div class="card"><div class="ctitle">🥧 Mix de productos por facturación</div>'+
-        '<div class="ch"><canvas id="c-vw-mix"></canvas></div></div>'+
-    '</div>'+
-
-    // Stock alerts
-    '<div class="card" style="border-left:4px solid var(--red)">'+
-      '<div class="ctitle">🚨 Alertas de Stock — Productos sin cobertura suficiente</div>'+
-      '<p style="font-size:.82rem;color:var(--text2);margin-bottom:16px">'+
-        'Productos de ABC Accesorios. Stock negativo en productos Multicap se excluye (intercompany).'+
-      '</p>'+
-      '<div class="tscroll"><table class="tbl"><thead><tr>'+
-        '<th>Producto</th>'+
-        MESES.map(function(m){return '<th class="num">'+ML[m]+'</th>';}).join('')+
-        '<th class="num">Stock</th><th>Cobertura</th><th>Riesgo</th>'+
-      '</tr></thead><tbody>'+
-      criticos.concat(bajos).map(function(p){
-        var avgQty = p.cantidad_total / Math.max(p.meses_activo,1);
-        var cob = p.stock !== null && avgQty > 0 ? (p.stock/avgQty).toFixed(1)+' meses' : '—';
-        var badge = p.riesgo_stock==='sin_stock'||p.riesgo_stock==='critico'
-          ? '<span class="badge br">🔴 Crítico</span>'
-          : '<span class="badge bo">⚡ Bajo</span>';
-        return '<tr style="background:'+(p.riesgo_stock==='sin_stock'||p.riesgo_stock==='critico'?'#FFF5F5':'#FFF9F0')+'">' +
-          '<td><b>'+p.producto+'</b></td>'+
-          MESES.map(function(m){
-            var v = p.imp_meses[m]||0;
-            return '<td class="num">'+(v>0?fmt(v):'—')+'</td>';
-          }).join('')+
-          '<td class="num" style="color:'+(p.stock<0?'var(--red)':'inherit')+'">'+(p.stock!==null?p.stock:'?')+'</td>'+
-          '<td>'+cob+'</td><td>'+badge+'</td></tr>';
-      }).join('')+
-      '</tbody></table></div>'+
-    '</div>'+
-
-    // Full product table
-    '<div class="card">'+
-      '<div class="ctitle">📋 Detalle completo por producto</div>'+
-      '<div class="fbar">'+
-        '<span class="flbl">Riesgo:</span>'+
-        '<select class="fsel" id="vw-riesgo" onchange="renderVWTable()">'+
-          '<option value="">Todos</option>'+
-          '<option value="sin_stock">Sin stock</option>'+
-          '<option value="critico">Crítico</option>'+
-          '<option value="bajo">Bajo</option>'+
-          '<option value="ok">OK</option>'+
-          '<option value="multicap">Multicap</option>'+
-        '</select>'+
-        '<input type="text" class="srch" id="vw-srch" placeholder="Buscar producto..." oninput="renderVWTable()">'+
-      '</div>'+
-      '<div class="tscroll"><table class="tbl"><thead><tr>'+
-        '<th>Producto</th>'+
-        MESES.map(function(m){return '<th class="num">'+ML[m]+'</th>';}).join('')+
-        '<th class="num">Total</th><th class="num">Uds.</th><th class="num">Stock</th><th>Riesgo</th>'+
-      '</tr></thead><tbody id="vw-tbody"></tbody></table></div>'+
-    '</div>';
-
-  setTimeout(function(){
-    // Evolution chart
-    var evoData = MESES.map(function(m){return vw.resumen_meses[m]||0;});
-    dChart('c-vw-evol');
-    charts['c-vw-evol'] = new Chart(el('c-vw-evol'),{
-      type:'bar',
-      data:{labels:MESES.map(function(m){return ML[m]||m;}),
-        datasets:[{data:evoData,backgroundColor:MESES.map(function(_,i){
-          return ['#2E86AB','#1E8449','#7B2D8B','#E8A020'][i]||'#888';
-        })}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-        scales:{y:{ticks:{callback:fmt}}}}
-    });
-
-    // Mix pie - top 8 products
-    var top8 = prods.slice(0,8);
-    dChart('c-vw-mix');
-    charts['c-vw-mix'] = new Chart(el('c-vw-mix'),{
-      type:'doughnut',
-      data:{labels:top8.map(function(p){return p.producto.substring(0,30);}),
-        datasets:[{data:top8.map(function(p){return p.importe_total;}),
-          backgroundColor:['#2E86AB','#1E8449','#E8A020','#C0392B','#7B2D8B','#117A65','#D35400','#8E44AD']}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10}}}}}
-    });
-  },50);
-  renderVWTable();
-}
-
-function renderVWTable() {
-  var riesgo = el('vw-riesgo') ? el('vw-riesgo').value : '';
-  var srch   = (el('vw-srch') ? el('vw-srch').value : '').toLowerCase();
-  var MESES  = SD.meses || ['2026-01','2026-02','2026-03','2026-04'];
-  var ML     = {'2026-01':'Ene','2026-02':'Feb','2026-03':'Mar','2026-04':'Abr'};
-  var prods  = SD.vw.productos;
-  if (riesgo) prods = prods.filter(function(p){return p.riesgo_stock===riesgo;});
-  if (srch)   prods = prods.filter(function(p){return p.producto.toLowerCase().includes(srch);});
-  var rBadge = {'sin_stock':'<span class="badge br">🔴 Sin stock</span>','critico':'<span class="badge br">🔴 Crítico</span>','bajo':'<span class="badge bo">⚡ Bajo</span>','ok':'<span class="badge bg">✅ OK</span>','multicap':'<span class="badge bb">Multicap</span>','sin_dato':'<span class="badge by">?</span>'};
-  var tbody = el('vw-tbody');
-  if (tbody) tbody.innerHTML = prods.map(function(p){
-    var bg = p.riesgo_stock==='sin_stock'||p.riesgo_stock==='critico'?'background:#FFF5F5':p.riesgo_stock==='bajo'?'background:#FFF9F0':'';
-    return '<tr style="'+bg+'"><td>'+p.producto+'</td>'+
-      MESES.map(function(m){var v=p.imp_meses[m]||0;return '<td class="num">'+(v>0?fmt(v):'—')+'</td>';}).join('')+
-      '<td class="num"><b>'+fmt(p.importe_total)+'</b></td>'+
-      '<td class="num">'+p.cantidad_total+'</td>'+
-      '<td class="num" style="color:'+(p.stock<0?'var(--red)':'inherit')+'">'+(p.stock!==null?p.stock:'?')+'</td>'+
-      '<td>'+(rBadge[p.riesgo_stock]||'')+'</td></tr>';
-  }).join('');
-}
-
-// ── FILTROS GLOBALES ──────────────────────────────────────────────────────────
-var gFilters = {meses:[], vendedores:[], marcas:[], familias:[], segmentos:[]};
-
-function buildGFiltros() {
-  var MESES = SD.meses || [];
-  var ML = {'2026-01':'Enero','2026-02':'Febrero','2026-03':'Marzo','2026-04':'Abril'};
-  var all_marcas   = SD.geo.marcas_list   || [];
-  var all_familias = SD.geo.familias_list || [];
-  var SEGS = ['Terminal','Terminal Toyota','Especial','Dealer / Concesionaria','Aftermarket','Aftermarket - Sonax'];
-  var VENDS = ['Matias Matozza','Veronica Albarracin','Alejandro Contardo','Nahuel Pontino','Oscar Luna','Hernan Villamil'];
-
-  function multiSelect(id, items, labels) {
-    return '<div class="multi-sel" id="ms-'+id+'">'+
-      items.map(function(item){
-        var lbl = labels ? (labels[item]||item) : item;
-        return '<label class="ms-item"><input type="checkbox" value="'+item+'" onchange="applyGFilters()"> '+lbl+'</label>';
-      }).join('')+
-    '</div>';
-  }
-
-  el('pane-filtros').innerHTML =
-    '<div class="card"><div class="ctitle">🔍 Filtros Globales</div>'+
-    '<p style="font-size:.82rem;color:var(--text2);margin-bottom:20px">Seleccioná uno o más valores en cada dimensión. Los KPIs y gráficos se actualizan en todos los módulos.</p>'+
-    '<div class="g2">'+
-      '<div>'+
-        '<div style="font-weight:700;font-size:.85rem;margin-bottom:8px;color:var(--navy)">📅 Período</div>'+
-        multiSelect('meses', MESES, ML)+
-      '</div>'+
-      '<div>'+
-        '<div style="font-weight:700;font-size:.85rem;margin-bottom:8px;color:var(--navy)">👥 Vendedor</div>'+
-        multiSelect('vendedores', VENDS, null)+
-      '</div>'+
-      '<div>'+
-        '<div style="font-weight:700;font-size:.85rem;margin-bottom:8px;color:var(--navy)">🏷️ Marca</div>'+
-        multiSelect('marcas', all_marcas, null)+
-      '</div>'+
-      '<div>'+
-        '<div style="font-weight:700;font-size:.85rem;margin-bottom:8px;color:var(--navy)">📦 Familia</div>'+
-        multiSelect('familias', all_familias, null)+
-      '</div>'+
-    '</div>'+
-    '<div style="margin-top:16px">'+
-      '<div style="font-weight:700;font-size:.85rem;margin-bottom:8px;color:var(--navy)">🏢 Segmento</div>'+
-      multiSelect('segmentos', SEGS, null)+
-    '</div>'+
-    '<div style="margin-top:20px;display:flex;gap:12px">'+
-      '<button class="lbtn" style="width:auto;padding:10px 24px" onclick="applyGFilters()">Aplicar filtros</button>'+
-      '<button class="tbtn" style="padding:10px 24px;background:var(--border);color:var(--text)" onclick="resetGFilters()">Limpiar</button>'+
-    '</div>'+
-    '</div>'+
-    '<div class="card" id="gfilter-results">'+
-      '<div class="ctitle">📊 Vista filtrada</div>'+
-      '<div id="gfilter-content"><div class="empty"><div class="ico">☝️</div><p>Seleccioná filtros arriba y hacé clic en Aplicar</p></div></div>'+
-    '</div>';
-}
-
-function getChecked(groupId) {
-  var checks = document.querySelectorAll('#ms-'+groupId+' input:checked');
-  return Array.from(checks).map(function(c){return c.value;});
-}
-
-function applyGFilters() {
-  var filters = {
-    meses:      getChecked('meses'),
-    vendedores: getChecked('vendedores'),
-    marcas:     getChecked('marcas'),
-    familias:   getChecked('familias'),
-    segmentos:  getChecked('segmentos'),
-  };
-
-  // Filter txn_summary
-  var txns = SD.txn_summary || [];
-  var filtered = txns.filter(function(t){
-    if (filters.meses.length      && !filters.meses.includes(t.mes))           return false;
-    if (filters.vendedores.length && !filters.vendedores.includes(t.vendedor)) return false;
-    if (filters.marcas.length     && !filters.marcas.includes(t.marca))        return false;
-    if (filters.familias.length   && !filters.familias.includes(t.familia))    return false;
-    if (filters.segmentos.length  && !filters.segmentos.includes(t.segmento))  return false;
-    return true;
-  });
-
-  var totalFilt = filtered.reduce(function(s,t){return s+t.importe;},0);
-  var ML = {'2026-01':'Enero','2026-02':'Febrero','2026-03':'Marzo','2026-04':'Abril'};
-
-  // Aggregate by mes, vendedor, marca
-  var byMes = {}, byVend = {}, byMarca = {}, byCli = {};
-  filtered.forEach(function(t){
-    byMes[t.mes]      = (byMes[t.mes]||0)+t.importe;
-    byVend[t.vendedor]= (byVend[t.vendedor]||0)+t.importe;
-    byMarca[t.marca]  = (byMarca[t.marca]||0)+t.importe;
-    byCli[t.cliente]  = (byCli[t.cliente]||0)+t.importe;
-  });
-
-  var mesSorted  = Object.entries(byMes).sort(function(a,b){return a[0].localeCompare(b[0]);});
-  var vendSorted = Object.entries(byVend).sort(function(a,b){return b[1]-a[1];});
-  var marcSorted = Object.entries(byMarca).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
-  var cliSorted  = Object.entries(byCli).sort(function(a,b){return b[1]-a[1];}).slice(0,15);
-
-  var activeFilters = Object.entries(filters)
-    .filter(function(e){return e[1].length>0;})
-    .map(function(e){return '<span class="badge bb">'+e[0]+': '+e[1].join(', ')+'</span>';}).join(' ');
-
-  el('gfilter-content').innerHTML =
-    '<div style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">'+activeFilters+'</div>'+
-    '<div class="kpi-grid">'+
-      kpi('Total filtrado', fmt(totalFilt), filtered.length+' transacciones', 'var(--navy)')+
-      kpi('Clientes', Object.keys(byCli).length+'', 'distintos', 'var(--abc)')+
-      kpi('Marcas', Object.keys(byMarca).length+'', 'distintas', 'var(--accent)')+
-    '</div>'+
-    '<div class="g2">'+
-      '<div class="card"><div class="ctitle">📅 Por mes</div>'+
-        '<div class="ch-sm"><canvas id="c-gf-mes"></canvas></div></div>'+
-      '<div class="card"><div class="ctitle">👥 Por vendedor</div>'+
-        '<div class="ch-sm"><canvas id="c-gf-vend"></canvas></div></div>'+
-    '</div>'+
-    '<div class="g2">'+
-      '<div class="card"><div class="ctitle">🏷️ Top marcas</div>'+
-        '<div class="tscroll"><table class="tbl"><thead><tr><th>Marca</th><th class="num">Importe</th><th>% del total</th></tr></thead><tbody>'+
-        marcSorted.map(function(e){
-          return '<tr><td>'+e[0]+'</td><td class="num">'+fmt(e[1])+'</td>'+
-            '<td><div class="pbg" style="width:120px"><div class="pfill green" style="width:'+Math.round(e[1]/totalFilt*100)+'%"></div></div></td></tr>';
-        }).join('')+'</tbody></table></div></div>'+
-      '<div class="card"><div class="ctitle">🏆 Top clientes</div>'+
-        '<div class="tscroll"><table class="tbl"><thead><tr><th>Cliente</th><th class="num">Importe</th></tr></thead><tbody>'+
-        cliSorted.map(function(e){return '<tr><td>'+e[0]+'</td><td class="num"><b>'+fmt(e[1])+'</b></td></tr>';}).join('')+
-        '</tbody></table></div></div>'+
-    '</div>';
-
-  setTimeout(function(){
-    dChart('c-gf-mes');
-    charts['c-gf-mes'] = new Chart(el('c-gf-mes'),{type:'bar',
-      data:{labels:mesSorted.map(function(e){return ML[e[0]]||e[0];}),
-        datasets:[{data:mesSorted.map(function(e){return e[1];}),backgroundColor:'#2E86AB'}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:fmt}}}}
-    });
-    dChart('c-gf-vend');
-    charts['c-gf-vend'] = new Chart(el('c-gf-vend'),{type:'bar',
-      data:{labels:vendSorted.map(function(e){return e[0].split(' ')[0];}),
-        datasets:[{data:vendSorted.map(function(e){return e[1];}),
-          backgroundColor:vendSorted.map(function(e){return {'Matias':'#2E86AB','Veronica':'#E8A020','Alejandro':'#1E8449','Nahuel':'#8E44AD','Oscar':'#E74C3C','Hernan':'#117A65'}[e[0].split(' ')[0]]||'#888';})}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:fmt}}}}
-    });
-  },50);
-}
-
-function resetGFilters() {
-  document.querySelectorAll('.ms-item input').forEach(function(c){c.checked=false;});
-  el('gfilter-content').innerHTML = '<div class="empty"><div class="ico">☝️</div><p>Seleccioná filtros arriba y hacé clic en Aplicar</p></div>';
-}
-
 </script>
 </body>
 </html>
